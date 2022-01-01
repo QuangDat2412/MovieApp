@@ -1,0 +1,14 @@
+.navBar {
+    background-color: rgb(26, 28, 34);
+}
+.searchBoxMobile {
+    @media screen and (max-width: 1023px) {
+        display: block !important;
+    }
+}
+.topAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}

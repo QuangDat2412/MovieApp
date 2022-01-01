@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    padding: 20px;
+}
+
+.link {
+    text-decoration: none;
+    color: inherit;
+}
+body {
+    margin: 0;
+}
+.slide2 {
+    background-image: url('./assets/images/Dash.jpg');
+    background-position: 50% -25px;
+    background-size: cover;
+    margin: 0;
+}
+
+.slide3 {
+    background-color: white /* #e8edf5 */;
+    margin: 0;
+}

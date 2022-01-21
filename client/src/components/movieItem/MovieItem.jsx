@@ -10,7 +10,8 @@ const MovieBox = styled.div`
             overflow: hidden;
             margin-bottom: 1rem;
             border-radius: 6px;
-            & > div {
+            position: relative;
+            & > div:nth-child(1) {
                 width: 100%;
                 object-fit: cover;
                 transition: all 0.3s ease-in-out 0s;
@@ -24,7 +25,6 @@ const MovieBox = styled.div`
         h2 {
             transition: all 0.3s ease-in-out 0s;
             font-size: 0.9rem;
-            text-transform: uppercase;
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
@@ -44,17 +44,30 @@ const MovieBox = styled.div`
         color: var(--primary-color);
     }
 `;
-
+const Vip = styled.div`
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    & > img {
+        width: 40px;
+        height: 40px;
+    }
+`;
 const MovieItem = (props) => {
     return (
         <>
             <MovieBox>
-                <Link to={'/info/' + props.movie.slug} title={props.movie.title}>
+                <Link to={'/detail/' + props.movie?.slug} title={props.movie?.title}>
                     <div>
-                        <div style={{ backgroundImage: `url(${props.movie.imgTitle})` }} alt="" className="imgItem"></div>
+                        <div style={{ backgroundImage: `url(${props.movie?.imgTitle})` }} alt="" className="imgItem"></div>
+                        {props.movie?.isVip && (
+                            <Vip>
+                                <img src="https://img.icons8.com/dusk/64/000000/vip.png" alt="logo" />
+                            </Vip>
+                        )}
                     </div>
-                    <h3>{props.movie.title}</h3>
-                    <h2>{props.movie.titleEng}</h2>
+                    <h3>{props.movie?.title}</h3>
+                    <h2>{props.movie?.titleEng}</h2>
                 </Link>
             </MovieBox>
         </>

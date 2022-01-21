@@ -4,6 +4,9 @@ import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
+import { publicRequest } from '../../requestMethods';
+import { convertSlug } from '../../utils';
+
 const Search = styled.div`
     @media screen and (max-width: 1023px) {
         display: none;
@@ -20,7 +23,7 @@ const Search = styled.div`
         z-index: 1;
     }
 `;
-const SearchForm = styled.div`
+const SearchForm = styled.form`
     width: 100%;
     position: relative;
     input {
@@ -44,7 +47,7 @@ const SearchForm = styled.div`
             color: #fff;
         }
     }
-    & > div {
+    & > button {
         position: absolute;
         right: 11px;
         top: 5px;
@@ -53,6 +56,11 @@ const SearchForm = styled.div`
         display: flex;
         align-items: center;
         justify-content: center;
+        background-color: transparent;
+        border: none;
+        svg {
+            color: var(--white);
+        }
     }
     .line {
         position: absolute;
@@ -76,7 +84,6 @@ const SearchForm = styled.div`
 
 const SearchBox = (props) => {
     const history = useHistory();
-    const { convertSlug } = props;
     const [input, setInput] = useState('');
     const handleChange = (e) => {
         setInput(e.target.value);
@@ -85,21 +92,31 @@ const SearchBox = (props) => {
         document.getElementById('search').value = '';
         setInput('');
     };
-    const handleSearch = () => {
-        const slug = convertSlug(input);
+    const search = async (input) => {
+        try {
+            const res = await publicRequest.post('/movies/search', { data: input });
+            const slug = convertSlug(input);
+            history.push('/search/' + slug, {
+                data: res.data,
+                value: input,
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
+    const handleSearch = (e) => {
+        e.preventDefault();
         setDefault();
-        history.push('/search/' + slug, {
-            data: input,
-        });
+        search(input);
     };
     return (
         <Search className={props.className}>
             <div>
                 <SearchForm>
-                    <input placeholder="Search" onChange={handleChange} type="text" id="search" autoComplete="off" />
-                    <div>
-                        <SearchIcon onClick={handleSearch} />
-                    </div>
+                    <input placeholder="Search" onChange={handleChange} name="search" type="text" id="search" autoComplete="off" />
+                    <button onClick={handleSearch}>
+                        <SearchIcon />
+                    </button>
                     <span className="line"></span>
                     {input !== '' ? <ClearIcon className="clear" onClick={setDefault} /> : ''}
                 </SearchForm>

@@ -1,61 +1,31 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { getMovies } from '../../redux/movieRedux/apiCalls';
-import BannerSlide from '../../components/bannerSlide/BannerSlide';
+import BannerSlide from '../components/bannerSlide/BannerSlide';
 import { useParams, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import useFetchData from '../hook/useFetchData';
 
 export default function Genre() {
     const { slug } = useParams();
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [slug]);
-    const dispatch = useDispatch();
-    useEffect(() => {
-        getMovies(dispatch);
-    }, [dispatch]);
-    const convertSlug = (str) => {
-        // remove accents
-        var from = 'àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ',
-            to = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeduuuuuuuuuuuoooooooooooooooooiiiiiaeiiouuncyyyyy';
-        for (var i = 0, l = from.length; i < l; i++) {
-            str = str.replace(RegExp(from[i], 'gi'), to[i]);
-        }
-
-        str = str
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9\\-]/g, '-')
-            .replace(/-+/g, '-');
-
-        return str;
-    };
-    const movies = useSelector((state) => {
-        return state.movie.movies;
-    });
-    let genre;
-    const newMovies = movies.filter((m) => {
-        genre = m.genre.find((g) => {
-            return convertSlug(g) === slug;
-        });
-        console.log(genre);
-        return genre;
-    });
+    const { listMovies, genre } = useFetchData('movies/genre-', slug);
     return (
         <div>
-            <BannerSlide movies={newMovies} />
+            <BannerSlide movies={listMovies} />
             <div className="container">
                 <h2 style={{ marginBottom: '10px' }}> {genre}</h2>
                 <ListEpisode>
-                    {newMovies.map((movie, index) => {
+                    {listMovies.map((movie, index) => {
                         return (
                             <div key={index}>
-                                <Link to={`/info/${movie.slug}`} title={movie.title}>
+                                <Link to={`/detail/${movie?.slug}`} title={movie?.title}>
                                     <div>
-                                        <div style={{ backgroundImage: `url(${movie.imgTitle})` }} alt="" className="imgItem"></div>
+                                        <div style={{ backgroundImage: `url(${movie?.imgTitle})` }} alt="" className="imgItem"></div>
                                     </div>
-                                    <h3>{movie.title}</h3>
+                                    <h3>{movie?.title}</h3>
                                 </Link>
                             </div>
                         );

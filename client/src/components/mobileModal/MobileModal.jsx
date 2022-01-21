@@ -5,6 +5,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../redux/authRedux/apiCalls';
+import { Link } from 'react-router-dom';
 
 const FormModal = styled.div`
     display: flex;
@@ -15,7 +16,7 @@ const FormModal = styled.div`
 `;
 const Mask = styled.div`
     position: fixed;
-    z-index: 100001;
+    z-index: 90001;
     top: 0;
     left: 0;
     width: 100vw;
@@ -24,11 +25,11 @@ const Mask = styled.div`
     opacity: 0.5;
 `;
 const Paper = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0px;
     width: 310px;
     height: 100vh;
-    z-index: 100002;
+    z-index: 90002;
     background-color: rgb(24, 26, 31);
     & > div:nth-child(1) {
         display: flex;
@@ -47,7 +48,7 @@ const Paper = styled.div`
 const MobileModalContent = styled.div`
     margin-left: 20px;
     & > div {
-        padding: 10px 0;
+        padding: 13px 0;
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -60,37 +61,58 @@ const MobileModalContent = styled.div`
             width: 42px;
             height: 42px;
         }
-        & > span {
+        & > span,
+        a {
             padding-left: 20px;
         }
     }
-    span {
-        font-size: 2rem;
-        font-weight: 600;
+    span,
+    a {
+        font-size: 1.5rem;
+        font-weight: 500;
     }
 `;
 const MobileModal = (props) => {
-    const auth = useSelector((state) => state.auth);
+    const auth = useSelector((state) => state.auth.currentUser);
     const dispatch = useDispatch();
     const handleLogout = () => {
         logout(dispatch);
+    };
+    const handleClose = () => {
+        props.setOpenMobileModal(false);
     };
     return (
         <FormModal>
             <Paper>
                 <div>
-                    <ClearIcon
-                        onClick={() => {
-                            props.setOpenMobileModal(false);
-                        }}
-                    />
+                    <ClearIcon onClick={handleClose} />
                 </div>
                 <MobileModalContent>
-                    {auth.status === 'Login' ? (
+                    {auth?._id ? (
                         <>
                             <div>
-                                <img src={auth.currentUser.img} alt="" className="topAvatar" />
-                                <span>{auth.currentUser.fullName}</span>
+                                <img src={auth.img} alt="" className="topAvatar" />
+                                <span>{auth.fullName}</span>
+                            </div>
+                            <div>
+                                <Link to="/personal/settings" onClick={handleClose}>
+                                    Cài đặt cá nhân
+                                </Link>
+                            </div>
+                            <div>
+                                <Link to="/" onClick={handleClose}>
+                                    Đề Xuất
+                                </Link>
+                            </div>
+                            <div>
+                                <Link to="/type/phim-le" onClick={handleClose}>
+                                    Phim Lẻ
+                                </Link>
+                            </div>
+                            <div>
+                                <Link to="/type/phim-bo" onClick={handleClose}>
+                                    Phim bộ
+                                </Link>
                             </div>
                             <div onClick={handleLogout}>
                                 <span>Đăng Xuất</span>

@@ -14,6 +14,7 @@ const MovieSchema = new mongoose.Schema(
         country: { type: String },
         director: { type: Array },
         actor: { type: Array },
+        episodes: [{ type: mongoose.Schema.ObjectId, ref: 'Episode' }],
         movieLength: { type: Number, default: 1 },
         isSeries: { type: Boolean, default: false },
         isVip: { type: Boolean, default: false },

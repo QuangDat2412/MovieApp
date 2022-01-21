@@ -13,19 +13,22 @@ import Loader from '../../components/loader/Loader';
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { userRequest } from '../../requestMethods';
-import { updateUser } from '../../redux/authRedux/apiCalls';
+import { publicRequest, userRequest } from '../../requestMethods';
+import { updateUserSuccess } from '../../redux/authRedux/authRedux';
 import { useDispatch } from 'react-redux';
-
+import Stripe from '../stripe/Stripe';
+import { formatTime } from '../../utils';
 const VideoBox = (props) => {
     const slug = useParams();
     const dispatch = useDispatch();
     const [start, setStart] = useState(false);
+    const [ads, setAds] = useState(false);
     const [p, setP] = useState('360p');
     const [play, setPlay] = useState(false);
     const [mute, setMute] = useState(false);
     const [left, setLeft] = useState(0);
     const [file, setFile] = useState(null);
+    const [link, setLink] = useState(null);
     const [currentTime, setCurrentTime] = useState(0);
     const [vol, setVol] = useState(50);
     const [overTime, setOverTime] = useState(0);
@@ -38,21 +41,24 @@ const VideoBox = (props) => {
     const { signal } = controller;
     const getEpisode = async (p) => {
         try {
-            const res = await userRequest.get('/episodes/episode/' + props.episode._id);
+            const res = await publicRequest.get('/episodes/episode/' + props.episode._id);
             const result = await fetch(
                 'https://www.googleapis.com/drive/v3/files/' + res.data[p] + '?alt=media&key=AIzaSyCIa8iyfyYCpCEvjxuYZyfCJ6SGHmEAsxo',
                 { signal }
             );
             // const result = await fetch('http://localhost:3000/test.mp4', { signal });
             const blob = await result.blob();
-            setFile(URL.createObjectURL(blob));
+            setLink(URL.createObjectURL(blob));
+            setFile('/ads.mp4');
         } catch (err) {
+            setP('480p');
             console.log(err);
         }
     };
-
     useEffect(() => {
         pauseVideo();
+        setStart(false);
+        setAds(false);
         setFile(null);
         getEpisode(p);
         return () => {
@@ -61,12 +67,15 @@ const VideoBox = (props) => {
     }, [slug, p]);
     useEffect(() => {
         video.current.ontimeupdate = () => {
-            if (undefined !== progress.current && video.current.duration) {
-                const progressPercent = Math.round((video.current.currentTime / video.current.duration) * 5000);
+            if (undefined !== progress.current && video.current?.duration) {
+                const progressPercent = Math.round((video.current.currentTime / video.current?.duration) * 5000);
                 if (progress.current) {
                     progress.current.value = progressPercent;
                 }
                 setCurrentTime(formatTime(video.current.currentTime));
+            }
+            if (!ads) {
+                setCurrentTime(formatTime(parseInt(video.current.duration.toFixed(0)) - video.current.currentTime));
             }
         };
         const logKey = (e) => {
@@ -101,7 +110,6 @@ const VideoBox = (props) => {
                     break;
                 case 27: //fullscreen
                     if (fullScreen.current) {
-                        console.log('a');
                         fullScreen.current = false;
                     }
                     break;
@@ -113,7 +121,7 @@ const VideoBox = (props) => {
         return () => {
             document.removeEventListener('keyup', logKey);
         };
-    }, []);
+    }, [ads]);
     const timeLapse = (e) => {
         // từ số phần trăm của giây convert sang giây
         video.current.currentTime = overTime;
@@ -128,25 +136,7 @@ const VideoBox = (props) => {
         }
         setVol(e.target.value);
     };
-    const formatTime = (time) => {
-        let hour = Math.floor(time / 3600);
-        let min = Math.floor((time / 60) % 60);
-        if (min < 10) {
-            min = `0${min}`;
-        }
-        let sec = Math.floor(time % 60);
-        if (sec < 10) {
-            sec = `0${sec}`;
-        }
-        if (hour < 10) {
-            hour = `0${hour}`;
-        }
-        if (hour > 0) {
-            return `${hour} : ${min} : ${sec}`;
-        } else {
-            return `${min} : ${sec}`;
-        }
-    };
+
     const replay5 = () => {
         video.current.currentTime = video.current.currentTime - 5;
         playVideo();
@@ -205,6 +195,30 @@ const VideoBox = (props) => {
             document.msExitFullscreen();
         }
     };
+    const handlePlayMovie = async () => {
+        setStart(true);
+        const time = parseInt((video.current.duration * 1000).toFixed(0));
+        if (props.auth?.isVip) {
+            await setFile(link);
+            setAds(true);
+        } else {
+            setTimeout(() => {
+                setFile(link);
+                playVideo();
+                setAds(true);
+            }, time);
+        }
+        playVideo();
+        if (props.auth?._id) {
+            const res = await userRequest.put(`/users/add/${props.auth?._id}`, { history: props.episode._id });
+            dispatch(updateUserSuccess(res.data));
+        } else {
+            const history = JSON.parse(sessionStorage.getItem(process.env.REACT_APP_SESSION_KEY)) || {
+                history: [],
+            };
+            sessionStorage.setItem(process.env.REACT_APP_SESSION_KEY, JSON.stringify({ history: [...history.history, props.episode._id] }));
+        }
+    };
     return (
         <Video
             onMouseMove={() => {
@@ -220,19 +234,34 @@ const VideoBox = (props) => {
                     <div
                         style={{
                             zIndex: `${start ? 0 : ''}`,
-                            backgroundImage: `url(${start ? 'https://www.iqiyipic.com/lequ/20211125/player-back.png' : props.movie.imgBanner})`,
+                            backgroundImage: `url(${start ? 'https://www.iqiyipic.com/lequ/20211125/player-back.png' : props.movie?.imgBanner})`,
                         }}
                     >
                         {!start && file && (
-                            <PlayCircleOutlineIcon
-                                onClick={() => {
-                                    setStart(true);
-                                    playVideo();
-                                    if (props.auth?._id) {
-                                        updateUser(props.auth?._id, { history: [...props.auth?.history, props.episode._id] }, dispatch);
-                                    }
-                                }}
-                            />
+                            <>
+                                {props.auth?.isVip || !props.movie?.isVip || (props.episode?.episode <= 4 && props.movie?.isSeries) ? (
+                                    <PlayCircleOutlineIcon onClick={handlePlayMovie} />
+                                ) : (
+                                    <div className="no_vip">
+                                        <div>
+                                            Nội dung VIP, kích hoạt VIP để xem
+                                            {props.auth?.id ? (
+                                                <Stripe>
+                                                    <div>Kích hoạt VIP</div>
+                                                </Stripe>
+                                            ) : (
+                                                <div
+                                                    onClick={() => {
+                                                        props.setOpenModal(true);
+                                                    }}
+                                                >
+                                                    Nếu bạn là VIP vui lòng đăng nhập
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                         {!file && <Loader />}
                     </div>
@@ -250,7 +279,8 @@ const VideoBox = (props) => {
                         />
                         {/* <source  type="video/mp4" />
                         </video> */}
-                        {start && (
+                        {start && !ads && <div className="ads">{`Quảng cáo 1 trong tổng số 1 (${currentTime ? currentTime : '00:00'})`}</div>}
+                        {start && ads && (
                             <ControlVideo id="control">
                                 <div>
                                     <input
@@ -398,12 +428,54 @@ const Video = styled.div`
                     height: 60px;
                     cursor: pointer;
                 }
+                .no_vip {
+                    width: 100%;
+                    height: 100%;
+                    background-image: url(https://www.iqiyipic.com/lequ/20211125/player-back.png);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    & > div {
+                        text-align: center;
+                        span {
+                            width: 75%;
+                            margin: 20px auto;
+                            display: block;
+                            div {
+                                line-height: 1.25;
+                                font-size: 1rem;
+                                color: #000;
+                                background-color: rgb(242, 191, 131);
+                                width: 100%;
+                                display: inline-block;
+                                padding: 0.5rem;
+                                text-align: center;
+                                border-radius: 5px;
+                                cursor: pointer;
+                            }
+                        }
+                        & > div {
+                            font-size: 0.8rem;
+                            color: var(--primary-color);
+                            text-align: center;
+                            margin-top: 20px;
+                            cursor: pointer;
+                        }
+                    }
+                }
             }
             & > div:nth-child(2) {
                 position: relative;
                 width: 100%;
                 height: 100%;
                 z-index: 2146;
+                .ads {
+                    position: absolute;
+                    bottom: 10px;
+                    left: 10px;
+                    z-index: 2147;
+                    font-weight: 600;
+                }
             }
         }
     }

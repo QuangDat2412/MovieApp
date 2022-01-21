@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, memo, useCallback, useRef, useEffect } from 'react';
 import '../../assets/css/style.scss';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -9,7 +10,7 @@ import styled from 'styled-components';
 import { login, register } from '../../redux/authRedux/apiCalls';
 import { useDispatch } from 'react-redux';
 import { publicRequest } from '../../requestMethods';
-
+import { regEmail, regPassword } from '../../utils';
 const Modal = (props) => {
     const [switchModal, setSwitchModal] = useState('login');
 
@@ -18,38 +19,161 @@ const Modal = (props) => {
     const closeModal = () => {
         props.setOpenModal(false);
     };
-
-    return (
-        <FormModal>
-            <Paper>
-                {switchModal === 'login' && <Login setSwitchModal={setSwitchModal} dispatch={dispatch} closeModal={closeModal} />}
-                {switchModal === 'register' && <Register setSwitchModal={setSwitchModal} dispatch={dispatch} closeModal={closeModal} />}
-                {switchModal === 'forgotPassword' && <ForgotPassword setSwitchModal={setSwitchModal} closeModal={closeModal} />}
-            </Paper>
-            <Mask></Mask>
-        </FormModal>
-    );
-};
-const Login = (props) => {
-    const [loader, setLoader] = useState(false);
     const [inputs, setInputs] = useState({});
-    const [status, setStatus] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const handleShowPassword = useCallback(() => setShowPassword(!showPassword), [showPassword]);
+
+    const [password, setPassword] = useState({ message: '', error: false, show: false });
+    const [rePassword, setRePassword] = useState({ message: '', error: false, show: false });
+    const [email, setEmail] = useState({ message: '', error: false });
+    const handleShowPassword = (e) => {
+        switch (e) {
+            case 'password':
+                setPassword({ ...password, show: !password.show });
+                break;
+            case 'rePassword':
+                setRePassword({ ...rePassword, show: !rePassword.show });
+                break;
+
+            default:
+        }
+    };
     const handleChange = useCallback((e) => {
         setInputs((prev) => {
             return { ...prev, [e.target.name]: e.target.value };
         });
     }, []);
-    const handleLogin = (e) => {
-        e.preventDefault();
+    const [status, setStatus] = useState('');
+
+    const validate = (data) => {
+        if (data.mail === '') {
+            setEmail({ message: 'Vui lòng nhập email', error: true });
+        } else {
+            setEmail({
+                message: regEmail.test(data.email) ? '' : 'Trường này không phải là email',
+                error: regEmail.test(data.email) ? false : true,
+            });
+        }
+        setPassword({
+            ...rePassword,
+            message: regPassword.test(data.password) ? '' : `Từ 8- 20 ký tự, ít nhất là tổ hợp của hai loại tùy ý gồm chữ cái, con số hoặc ký tự`,
+            error: regPassword.test(data.password) ? false : true,
+        });
+        setRePassword({
+            ...rePassword,
+            message: data.rePassword === data.password ? '' : `Mật khẩu nhập vào hai lần không đồng nhất`,
+            error: data.rePassword === data.password ? false : true,
+        });
+
+        // code block
+    };
+    return (
+        <FormModal>
+            <div>
+                <Paper>
+                    {switchModal === 'login' && (
+                        <Login
+                            validate={validate}
+                            handleShowPassword={handleShowPassword}
+                            setSwitchModal={setSwitchModal}
+                            dispatch={dispatch}
+                            closeModal={closeModal}
+                            handleChange={handleChange}
+                            setEmail={setEmail}
+                            setInputs={setInputs}
+                            setPassword={setPassword}
+                            email={email}
+                            password={password}
+                            inputs={inputs}
+                            status={status}
+                            setStatus={setStatus}
+                        />
+                    )}
+                    {switchModal === 'register' && (
+                        <Register
+                            validate={validate}
+                            handleShowPassword={handleShowPassword}
+                            setSwitchModal={setSwitchModal}
+                            dispatch={dispatch}
+                            closeModal={closeModal}
+                            handleChange={handleChange}
+                            setEmail={setEmail}
+                            setInputs={setInputs}
+                            setPassword={setPassword}
+                            setRePassword={setRePassword}
+                            email={email}
+                            password={password}
+                            rePassword={rePassword}
+                            inputs={inputs}
+                            status={status}
+                            setStatus={setStatus}
+                        />
+                    )}
+                    {switchModal === 'forgotPassword' && (
+                        <ForgotPassword
+                            validate={validate}
+                            handleShowPassword={handleShowPassword}
+                            setSwitchModal={setSwitchModal}
+                            dispatch={dispatch}
+                            closeModal={closeModal}
+                            handleChange={handleChange}
+                            setEmail={setEmail}
+                            setInputs={setInputs}
+                            setPassword={setPassword}
+                            setRePassword={setRePassword}
+                            email={email}
+                            password={password}
+                            rePassword={rePassword}
+                            inputs={inputs}
+                            status={status}
+                            setStatus={setStatus}
+                        />
+                    )}
+                </Paper>
+                <Mask></Mask>
+            </div>
+        </FormModal>
+    );
+};
+const Login = (props) => {
+    const [loader, setLoader] = useState(false);
+
+    const {
+        validate,
+        handleShowPassword,
+        setSwitchModal,
+        dispatch,
+        closeModal,
+        handleChange,
+        setEmail,
+        setInputs,
+        setPassword,
+        email,
+        password,
+        inputs,
+        status,
+        setStatus,
+    } = props;
+    useEffect(() => {
+        const logKey = (e) => {
+            const keyCode = e.keyCode;
+            if (keyCode === 13) {
+                handleLogin();
+            }
+            // code block
+        };
+        document.addEventListener('keyup', logKey);
+        return () => {
+            document.removeEventListener('keyup', logKey);
+        };
+    }, [inputs]);
+    const handleLogin = () => {
         const data = {
             ...inputs,
         };
         setLoader(true);
-        login(props.dispatch, data).then((response) => {
+        validate(data);
+        login(dispatch, data).then((response) => {
             if (response._id) {
-                props.closeModal();
+                closeModal();
             } else {
                 setStatus('Tài khoản mật khẩu không chính xác !!!');
             }
@@ -60,35 +184,59 @@ const Login = (props) => {
         <>
             <div className="paper-header">
                 <div></div>
-                <ClearIcon onClick={props.closeModal} />
+                <ClearIcon onClick={closeModal} />
             </div>
             <PaperContent>
                 <div className="title">
                     <p>Đăng nhập</p>
                 </div>
-                {!(status === '') && <span>{status}</span>}
-                <Input name="email" label="Email" type="email" onChange={handleChange} />
-                <Input
-                    name="password"
-                    label="Mật khẩu"
-                    type={showPassword ? 'text' : 'password'}
-                    handleShowPassword={handleShowPassword}
-                    onChange={handleChange}
-                />
-                <div className="btn">
-                    {loader ? (
-                        <Loader className="loader" />
-                    ) : (
-                        <Button fullWidth onClick={handleLogin}>
-                            Đăng nhập
-                        </Button>
-                    )}
-                </div>
+                <Form>
+                    {!(status === '') && <span>{status}</span>}
+                    <Input
+                        name="email"
+                        label="Email"
+                        type="email"
+                        onChange={handleChange}
+                        helperText={email.message}
+                        error={email.error}
+                        onFocus={() => {
+                            setEmail({
+                                message: '',
+                                error: false,
+                            });
+                        }}
+                    />
+                    <Input
+                        name="password"
+                        label="Mật khẩu"
+                        type={password.show ? 'text' : 'password'}
+                        handleShowPassword={handleShowPassword}
+                        onChange={handleChange}
+                        helperText={password.message}
+                        error={password.error}
+                        onFocus={() => {
+                            setPassword({
+                                ...password,
+                                message: '',
+                                error: false,
+                            });
+                        }}
+                    />
+                    <div className="btn">
+                        {loader ? (
+                            <Loader className="loader" />
+                        ) : (
+                            <Button fullWidth onClick={handleLogin}>
+                                Đăng nhập
+                            </Button>
+                        )}
+                    </div>
+                </Form>
 
                 <div className="options">
                     <span
                         onClick={() => {
-                            props.setSwitchModal('register');
+                            setSwitchModal('register');
                             setStatus('');
                             setInputs({});
                         }}
@@ -97,7 +245,7 @@ const Login = (props) => {
                     </span>
                     <span
                         onClick={() => {
-                            props.setSwitchModal('forgotPassword');
+                            setSwitchModal('forgotPassword');
                             setStatus('');
                             setInputs({});
                         }}
@@ -110,46 +258,48 @@ const Login = (props) => {
     );
 };
 const Register = (props) => {
+    const {
+        validate,
+        handleShowPassword,
+        setSwitchModal,
+        dispatch,
+        closeModal,
+        handleChange,
+        setEmail,
+        setInputs,
+        setPassword,
+        setRePassword,
+        email,
+        password,
+        rePassword,
+        inputs,
+        setStatus,
+    } = props;
+
     useEffect(() => {
+        const logKey = (e) => {
+            const keyCode = e.keyCode;
+            if (keyCode === 13) {
+                handleRegister();
+            }
+            // code block
+        };
+        document.addEventListener('keyup', logKey);
         return () => {
+            document.removeEventListener('keyup', logKey);
             setLoader();
             setStep();
-            setInputs();
-            setCheckEmail();
-            setShowPassword();
-            setCheckEmail();
-            setTimer();
         };
     }, []);
     const [loader, setLoader] = useState(false);
     const [step, setStep] = useState(1);
-    const handleChange = useCallback((e) => {
-        setInputs((prev) => {
-            return { ...prev, [e.target.name]: e.target.value };
-        });
-    }, []);
     const countRef = useRef(null);
-
-    const [inputs, setInputs] = useState({});
-    const [checkEmail, setCheckEmail] = useState({ message: '', error: false });
-    const [checkOtp, setCheckOtp] = useState({ message: '', error: false });
-    const [checkPassword, setCheckPassword] = useState({ message: '', error: false });
-    const [checkRePassword, setCheckRePassword] = useState({ message: '', error: false });
-
     const [timer, setTimer] = useState(30);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showRePassword, setShowRePassword] = useState(false);
-    const handleShowPassword = useCallback(() => setShowPassword(!showPassword), [showPassword]);
-    const handleShowRePassword = useCallback(() => setShowRePassword(!showRePassword), [showRePassword]);
-
-    const regEmail =
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    const regPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
     const reSend = () => {
         const data = {
             ...inputs,
         };
-        publicRequest.post('/auth/sendmail', data).then((res) => {
+        publicRequest.post('/auth/sendmail/register', data).then((res) => {
             if (res.data) {
                 setTimer(30);
                 countRef.current = setInterval(() => {
@@ -162,31 +312,9 @@ const Register = (props) => {
             }
         });
     };
-    const validate = (data) => {
-        if (data.mail === '') {
-            setCheckEmail({ message: 'Vui lòng nhập email', error: true });
-        } else {
-            setCheckEmail({
-                message: regEmail.test(data.email) ? '' : 'Trường này không phải là email',
-                error: regEmail.test(data.email) ? false : true,
-            });
-        }
+    const [checkOtp, setCheckOtp] = useState({ message: '', error: false });
 
-        if (step === 3) {
-            setCheckPassword({
-                message: regPassword.test(data.password) ? '' : `Từ 8- 20 ký tự, ít nhất là tổ hợp của hai loại tùy ý gồm chữ cái, con số hoặc ký tự`,
-                error: regPassword.test(data.password) ? false : true,
-            });
-            setCheckRePassword({
-                message: data.rePassword === data.password ? '' : `Mật khẩu nhập vào hai lần không đồng nhất`,
-                error: data.rePassword === data.password ? false : true,
-            });
-        }
-
-        // code block
-    };
     const handleRegister = (e) => {
-        e.preventDefault();
         const data = {
             ...inputs,
         };
@@ -206,7 +334,7 @@ const Register = (props) => {
                                 setTimer(0);
                             }, 30000);
                         } else {
-                            setCheckEmail({
+                            setEmail({
                                 message: 'Email đã được sử dụng',
                                 error: true,
                             });
@@ -218,9 +346,11 @@ const Register = (props) => {
                 }
                 break;
             case 2:
-                register(data, props.dispatch).then((res) => {
+                register(data, dispatch).then((res) => {
                     if (res) {
-                        props.setSwitchModal('login');
+                        setSwitchModal('login');
+                        setInputs({});
+                        setStatus('Đăng ký tài khoản thành công');
                     } else {
                         setCheckOtp({
                             message: 'Mã OTP không chính xác',
@@ -238,101 +368,228 @@ const Register = (props) => {
             <div className="paper-header">
                 <ArrowBackIosIcon
                     onClick={() => {
-                        props.setSwitchModal('login');
+                        setSwitchModal('login');
                         setInputs({});
                     }}
                 />
-                <ClearIcon onClick={props.closeModal} />
+                <ClearIcon onClick={closeModal} />
             </div>
             <PaperContent>
                 <div className="title">
                     <p>Đăng ký</p>
                 </div>
-                {step === 1 && (
-                    <>
-                        <Input
-                            name="email"
-                            label="Email"
-                            type="email"
-                            onChange={handleChange}
-                            helperText={checkEmail.message}
-                            error={checkEmail.error}
-                            onFocus={() => {
-                                setCheckEmail({
-                                    message: '',
-                                    error: false,
-                                });
-                            }}
-                        />
-                        <Input name="fullName" label="Tên tài khoản" type="text" onChange={handleChange} />
-                        <Input
-                            name="password"
-                            label="Mật khẩu"
-                            type={showPassword ? 'text' : 'password'}
-                            handleShowPassword={handleShowPassword}
-                            onChange={handleChange}
-                            helperText={checkPassword.message}
-                            error={checkPassword.error}
-                        />
-                        <Input
-                            name="rePassword"
-                            label="Nhập lại mật khẩu"
-                            type={showRePassword ? 'text' : 'password'}
-                            handleShowPassword={handleShowRePassword}
-                            onChange={handleChange}
-                            helperText={checkRePassword.message}
-                            error={checkRePassword.error}
-                        />
-                    </>
-                )}
-                {step === 2 && (
-                    <>
-                        {' '}
-                        <Input
-                            name="otp"
-                            label="Mã OTP"
-                            type="number"
-                            onChange={handleChange}
-                            helperText={checkOtp.message}
-                            error={checkOtp.error}
-                            onFocus={() => {
-                                setCheckOtp({
-                                    message: '',
-                                    error: false,
-                                });
-                            }}
-                        />
-                        <div className="message">
-                            {timer === 0 ? (
-                                <h1 onClick={reSend}>Nhấn để nhận lại mã OTP</h1>
-                            ) : (
-                                <h2>{`Sau khi đợi ${timer}s có thể nhận lại mã xác thực lần nữa`}</h2>
-                            )}
-                        </div>
-                    </>
-                )}
-                <div className="btn" style={{ marginBottom: '0' }}>
-                    {loader ? (
-                        <Loader className="loader" />
-                    ) : (
-                        <Button fullWidth onClick={handleRegister}>
-                            {step === 2 ? 'Đăng ký' : 'Tiếp'}
-                        </Button>
+                <Form>
+                    {step === 1 && (
+                        <>
+                            <Input
+                                name="email"
+                                label="Email"
+                                type="email"
+                                onChange={handleChange}
+                                helperText={email.message}
+                                error={email.error}
+                                onFocus={() => {
+                                    setEmail({
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                            <Input name="fullName" label="Tên tài khoản" type="text" onChange={handleChange} />
+                            <Input
+                                name="password"
+                                label="Mật khẩu"
+                                type={password.show ? 'text' : 'password'}
+                                handleShowPassword={handleShowPassword}
+                                onChange={handleChange}
+                                helperText={password.message}
+                                error={password.error}
+                                onFocus={() => {
+                                    setPassword({ ...password, message: '', error: false });
+                                }}
+                            />
+                            <Input
+                                name="rePassword"
+                                label="Nhập lại mật khẩu"
+                                type={rePassword.show ? 'text' : 'password'}
+                                handleShowPassword={handleShowPassword}
+                                onChange={handleChange}
+                                helperText={rePassword.message}
+                                error={rePassword.error}
+                                onFocus={() => {
+                                    setRePassword({
+                                        ...rePassword,
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                        </>
                     )}
-                </div>
+                    {step === 2 && (
+                        <>
+                            {' '}
+                            <Input
+                                name="otp"
+                                label="Mã OTP"
+                                type="number"
+                                onChange={handleChange}
+                                helperText={checkOtp.message}
+                                error={checkOtp.error}
+                                onFocus={() => {
+                                    setCheckOtp({
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                            <div className="message">
+                                {timer === 0 ? (
+                                    <h1 onClick={reSend}>Nhấn để nhận lại mã OTP</h1>
+                                ) : (
+                                    <h2>{`Sau khi đợi ${timer}s có thể nhận lại mã xác thực lần nữa`}</h2>
+                                )}
+                            </div>
+                        </>
+                    )}
+                    <div className="btn" style={{ marginBottom: '0' }}>
+                        {loader ? (
+                            <Loader className="loader" />
+                        ) : (
+                            <Button fullWidth onClick={handleRegister}>
+                                {step === 2 ? 'Đăng ký' : 'Tiếp'}
+                            </Button>
+                        )}
+                    </div>
+                </Form>
             </PaperContent>
         </>
     );
 };
 const ForgotPassword = (props) => {
-    const { setSwitchModal, closeModal } = props;
-
+    const {
+        validate,
+        handleShowPassword,
+        setSwitchModal,
+        closeModal,
+        handleChange,
+        setEmail,
+        setInputs,
+        setPassword,
+        setRePassword,
+        email,
+        password,
+        rePassword,
+        regPassword,
+        inputs,
+        setStatus,
+    } = props;
+    const [otp, setOtp] = useState({ message: '', error: false });
+    const [loader, setLoader] = useState(false);
+    const [step, setStep] = useState(1);
+    const countRef = useRef(null);
+    const [timer, setTimer] = useState(30);
+    const reSend = () => {
+        const data = {
+            ...inputs,
+        };
+        publicRequest.post('/auth/sendmail/forgotpassword', data).then((res) => {
+            if (res.data) {
+                setTimer(30);
+                countRef.current = setInterval(() => {
+                    setTimer((timer) => timer - 1);
+                }, 1000);
+                setTimeout(() => {
+                    clearInterval(countRef.current);
+                    setTimer(0);
+                }, 30000);
+            }
+        });
+    };
+    useEffect(() => {
+        const logKey = (e) => {
+            const keyCode = e.keyCode;
+            if (keyCode === 13) {
+                handleForgotPassword();
+            }
+            // code block
+        };
+        document.addEventListener('keyup', logKey);
+        return () => {
+            document.removeEventListener('keyup', logKey);
+            setLoader();
+            setStep();
+        };
+    }, []);
+    const handleForgotPassword = (e) => {
+        const data = {
+            ...inputs,
+        };
+        setLoader(true);
+        validate(data);
+        switch (step) {
+            case 1:
+                if (regEmail.test(data.email) && data.email !== '') {
+                    publicRequest.post('/auth/sendmail/forgotpassword', data).then((res) => {
+                        if (res.data) {
+                            setStep(2);
+                            countRef.current = setInterval(() => {
+                                setTimer((timer) => timer - 1);
+                            }, 1000);
+                            setTimeout(() => {
+                                clearInterval(countRef.current);
+                                setTimer(0);
+                            }, 30000);
+                        } else {
+                            setEmail({
+                                ...email,
+                                message: 'Email không chính xác',
+                                error: true,
+                            });
+                        }
+                        setLoader(false);
+                    });
+                } else {
+                    setLoader(false);
+                }
+                break;
+            case 2:
+                publicRequest.post('/auth/checkotp', data).then((res) => {
+                    if (res.data) {
+                        setTimer(30);
+                        setStep(3);
+                    } else {
+                        setOtp({
+                            message: 'Mã OTP không chính xác',
+                            error: true,
+                        });
+                    }
+                    setLoader(false);
+                });
+                break;
+            case 3:
+                if (regPassword.test(data.password) && data.password === data.rePassword) {
+                    publicRequest.put('/auth/forgotpassword', data).then((res) => {
+                        if (res.data) {
+                            setInputs({});
+                            setSwitchModal('login');
+                            setStatus('Thay đổi mật khẩu thành công');
+                        }
+                        setLoader(false);
+                    });
+                }
+                setLoader(false);
+                break;
+            default:
+        }
+    };
     return (
         <>
             <div className="paper-header">
                 <ArrowBackIosIcon
                     onClick={() => {
                         setSwitchModal('login');
+                        setInputs({});
                     }}
                 />
                 <ClearIcon onClick={closeModal} />
@@ -341,16 +598,113 @@ const ForgotPassword = (props) => {
                 <div className="title">
                     <p>Tìm lại mật khẩu</p>
                 </div>
-                <Input name="email" label="Email" type="email" />
-                <Button fullWidth>Tiếp</Button>
+                <Form>
+                    {step === 1 && (
+                        <>
+                            <Input
+                                name="email"
+                                label="Email"
+                                type="email"
+                                onChange={handleChange}
+                                helperText={email.message}
+                                error={email.error}
+                                onFocus={() => {
+                                    setEmail({
+                                        ...email,
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                        </>
+                    )}
+                    {step === 2 && (
+                        <>
+                            {' '}
+                            <Input
+                                name="otp"
+                                label="Mã OTP"
+                                type="number"
+                                onChange={handleChange}
+                                helperText={otp.message}
+                                error={otp.error}
+                                onFocus={() => {
+                                    setOtp({
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                            <div className="message">
+                                {timer === 0 ? (
+                                    <h1 onClick={reSend}>Nhấn để nhận lại mã OTP</h1>
+                                ) : (
+                                    <h2>{`Sau khi đợi ${timer}s có thể nhận lại mã xác thực lần nữa`}</h2>
+                                )}
+                            </div>
+                        </>
+                    )}
+                    {step === 3 && (
+                        <>
+                            {' '}
+                            <Input
+                                name="password"
+                                label="Mật khẩu"
+                                type={password.show ? 'text' : 'password'}
+                                handleShowPassword={handleShowPassword}
+                                onChange={handleChange}
+                                helperText={password.message}
+                                error={password.error}
+                                onFocus={() => {
+                                    setPassword({
+                                        ...password,
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                            <Input
+                                name="rePassword"
+                                label="Nhập lại mật khẩu"
+                                type={rePassword ? 'text' : 'password'}
+                                handleShowPassword={handleShowPassword}
+                                onChange={handleChange}
+                                helperText={rePassword.message}
+                                error={rePassword.error}
+                                onFocus={() => {
+                                    setRePassword({
+                                        ...rePassword,
+                                        message: '',
+                                        error: false,
+                                    });
+                                }}
+                            />
+                        </>
+                    )}
+                    <div className="btn" style={{ marginBottom: '0' }}>
+                        {loader ? (
+                            <Loader className="loader" />
+                        ) : (
+                            <Button fullWidth onClick={handleForgotPassword}>
+                                {step === 3 ? 'Thay đổi mật khẩu' : 'Tiếp'}
+                            </Button>
+                        )}
+                    </div>
+                </Form>
             </PaperContent>
         </>
     );
 };
 const FormModal = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed;
+    top: 100px;
+    right: calc(50% - 200px);
+    z-index: 100000;
+    & > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 `;
 const Mask = styled.div`
     position: fixed;
@@ -361,6 +715,14 @@ const Mask = styled.div`
     height: 100vh;
     background-color: #000;
     opacity: 0.5;
+`;
+const Form = styled.form`
+    & > div {
+        margin: 10px 0;
+    }
+    & > div:last-child {
+        margin: 30px 0;
+    }
 `;
 const Paper = styled.div`
     margin-top: 40px;

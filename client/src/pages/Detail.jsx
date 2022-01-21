@@ -1,22 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import './Detail.scss';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
+import { getMovies } from '../redux/movieRedux/apiCalls';
+import { userRequest } from '../requestMethods';
+import { updateUserSuccess } from '../redux/authRedux/authRedux';
+import { useDispatch } from 'react-redux';
+import { convertSlug } from '../utils';
+import Button from '../components/button/Button';
+import ListMovie from '../components/listMovie/ListMovie';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import Button from '../../components/button/Button';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import ListMovie from '../../components/listMovie/ListMovie';
-import { getMovies } from '../../redux/movieRedux/apiCalls';
-import { userRequest } from '../../requestMethods';
-import { updateUserSuccess } from '../../redux/authRedux/authRedux';
-import { useDispatch } from 'react-redux';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import { convertSlug } from '../../utils';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 export default function Detail(props) {
     const { setOpenModal } = props;
     const { slug } = useParams();
@@ -252,6 +251,45 @@ const Banner = styled.div`
             display: block;
             padding-top: 39.8%;
         }
+        .bottom {
+            width: 100%;
+            height: 36%;
+            background-image: linear-gradient(
+                179deg,
+                rgba(17, 19, 25, 0) 1%,
+                rgba(17, 19, 25, 0.05) 17%,
+                rgba(17, 19, 25, 0.2) 31%,
+                rgba(17, 19, 25, 0.39) 44%,
+                rgba(17, 19, 25, 0.61) 56%,
+                rgba(17, 19, 25, 0.8) 69%,
+                rgba(17, 19, 25, 0.95) 83%,
+                rgb(17, 19, 25) 99%
+            );
+            border-radius: 1px;
+            z-index: 100;
+            position: absolute;
+            bottom: 0px;
+        }
+        .left {
+            width: 36%;
+            height: 100%;
+            background-image: linear-gradient(
+                270deg,
+                rgba(17, 19, 25, 0) 0%,
+                rgba(17, 19, 25, 0.05) 16%,
+                rgba(17, 19, 25, 0.2) 30%,
+                rgba(17, 19, 25, 0.39) 43%,
+                rgba(17, 19, 25, 0.61) 55%,
+                rgba(17, 19, 25, 0.8) 68%,
+                rgba(17, 19, 25, 0.95) 82%,
+                rgb(17, 19, 25) 98%
+            );
+            border-radius: 1px;
+            z-index: 100;
+            position: absolute;
+            bottom: 0px;
+        }
+
         & > div {
             position: absolute;
             opacity: 0.95;

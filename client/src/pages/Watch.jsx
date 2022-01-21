@@ -1,17 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import './Watch.scss';
 import styled from 'styled-components';
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getEpisodes } from '../../redux/episodeRedux/apiCalls';
 import { useDispatch } from 'react-redux';
-import VideoBox from '../../components/videoBox/VideoBox';
-import ListMovie from '../../components/listMovie/ListMovie';
-import { ContentInfo } from '../info/Info';
-export default function Watch() {
+import VideoBox from '../components/videoBox/VideoBox';
+import ListMovie from '../components/listMovie/ListMovie';
+import { ContentInfo } from './Detail';
+import { getMovies } from '../redux/movieRedux/apiCalls';
+
+export default function Watch(props) {
     const dispatch = useDispatch();
     let { slug } = useParams();
+    useEffect(() => {
+        getMovies(dispatch);
+        window.scrollTo(0, 0);
+    }, [slug]);
     const arr = slug.split('-');
     Object.keys(arr).map((x) => {
         return (arr[x] = arr[x].trim());
@@ -34,39 +38,30 @@ export default function Watch() {
         }
         return 0;
     });
-    const movie = useSelector((state) => {
-        return state.movie.movies.find((movie) => movie.slug === newSlug);
-    });
-    useEffect(() => {
-        getEpisodes(movie._id, dispatch);
-        window.scrollTo(0, 0);
-    }, [slug]);
-    const episodes = useSelector((state) => {
-        return state.episode.episodes;
-    });
-    const arrayEpisodes = [...episodes];
-    let episode;
-    if (movie?.isSeries) {
-        episode = arrayEpisodes.find((episode) => `${episode.episode}` === arr[arr.length - 2]);
-    } else {
-        episode = arrayEpisodes[0];
-    }
-    arrayEpisodes.sort((a, b) => a.episode - b.episode);
     const movies = useSelector((state) => {
         return state.movie.movies;
     });
+    const movie = movies.find((movie) => movie?.slug === newSlug);
+    const episodes = movie?.episodes;
+    let episode;
+    if (movie?.isSeries) {
+        episode = episodes.find((episode) => `${episode.episode}` === arr[arr.length - 2]);
+    } else {
+        episode = episodes[0];
+    }
+
     return (
         <>
             <Container>
-                <VideoBox movie={movie} episode={episode} auth={auth} />
-                <EpisodeRight movie={movie} arrayEpisodes={arrayEpisodes} movies={movies} arr={arr} episode={episode} />
+                <VideoBox movie={movie} auth={auth} setOpenModal={props.setOpenModal} episode={episode} />
+                <EpisodeRight movie={movie} episodes={episodes} episode={episode} movies={movies} />
                 <div>
                     <ContentInfo movie={movie} episode={episode} />
-                    <EpisodeRight movie={movie} arrayEpisodes={arrayEpisodes} movies={movies} arr={arr} episode={episode} />
+                    <EpisodeRight movie={movie} episodes={episodes} episode={episode} movies={movies} />
                     <div>
                         <div></div>
                         <h2>Đề xuất liên quan</h2>
-                        <ListMovie />
+                        <ListMovie movies={movies} />
                     </div>
                 </div>
             </Container>
@@ -75,18 +70,19 @@ export default function Watch() {
 }
 
 const EpisodeRight = (props) => {
-    const { movie, arrayEpisodes, movies, episode } = props;
+    const { movie, movies, episodes, episode } = props;
     const [select, setSelect] = useState(true);
+    const movies1 = movies.filter((m) => m.trending === 1);
     return (
         <EpisodeBox>
             <div>
                 <div>
                     <div>
-                        <Link to={`/info/${movie.slug}`} className="name">
-                            {movie.title}
+                        <Link to={`/detail/${movie?.slug}`} className="name">
+                            {movie?.title}
                         </Link>
                     </div>
-                    {movie.isSeries ? (
+                    {movie?.isSeries ? (
                         <>
                             <div className="series">
                                 <div
@@ -124,18 +120,15 @@ const EpisodeRight = (props) => {
                                     Đề xuất
                                     <div style={{ borderBottom: ` calc(2.25rem - 2px) solid ${!select ? '#2d2f34' : '#23252b'}` }}></div>
                                 </div>
-                                <div>
-                                    <Link to={'/'}>Kích hoạt VIP</Link>
-                                </div>
                             </div>
                             {select ? (
                                 <div className="episode">
-                                    {arrayEpisodes.map((e, index) => {
+                                    {episodes.map((e, index) => {
                                         return (
                                             <div key={index}>
                                                 <div>
                                                     <Link
-                                                        to={`/watch/${movie.slug}-tap-${index + 1}-${movie.isSeries}`}
+                                                        to={`/watch/${movie?.slug}-tap-${index + 1}-${movie?.isSeries}`}
                                                         style={{
                                                             color: `${`${episode.episode}` === `${index + 1}` ? 'var(--primary-color)' : ''}`,
                                                         }}
@@ -149,12 +142,12 @@ const EpisodeRight = (props) => {
                                 </div>
                             ) : (
                                 <div className="trending">
-                                    {movies.map((movie, index) => {
+                                    {movies1.map((movie, index) => {
                                         return (
                                             <div key={index}>
-                                                <Link to={`/info/${movie.slug}`}>
-                                                    <div style={{ backgroundImage: `url(${movie.imgBanner})` }}></div>
-                                                    <div>{movie.title}</div>
+                                                <Link to={`/detail/${movie?.slug}`}>
+                                                    <div style={{ backgroundImage: `url(${movie?.imgBanner})` }}></div>
+                                                    <div>{movie?.title}</div>
                                                 </Link>
                                             </div>
                                         );
@@ -169,9 +162,9 @@ const EpisodeRight = (props) => {
                                 {movies.map((movie, index) => {
                                     return (
                                         <div key={index}>
-                                            <Link to={`/info/${movie.slug}`}>
-                                                <div style={{ backgroundImage: `url(${movie.imgBanner})` }}></div>
-                                                <div>{movie.title}</div>
+                                            <Link to={`/detail/${movie?.slug}`}>
+                                                <div style={{ backgroundImage: `url(${movie?.imgBanner})` }}></div>
+                                                <div>{movie?.title}</div>
                                             </Link>
                                         </div>
                                     );
@@ -346,27 +339,12 @@ const EpisodeBox = styled.div`
                         left: -14px;
                     }
                 }
-                & > div:nth-child(3) {
-                    margin: 1.25rem 20px;
-                    width: 100%;
-                    & > a {
-                        line-height: 1.25;
-                        font-size: 1rem;
-                        color: #000;
-                        background-color: rgb(242, 191, 131);
-                        width: 100%;
-                        display: inline-block;
-                        padding: 0.5rem;
-                        text-align: center;
-                        border-radius: 5px;
-                    }
-                }
             }
             .episode {
                 display: flex;
                 flex-direction: row;
                 flex-wrap: wrap;
-                margin: 10px 0 10px 10px;
+                margin: 30px 0 10px 10px;
                 & > div {
                     background-color: rgba(0, 0, 0, 0.3);
                     width: calc((100% - 60px) / 6);

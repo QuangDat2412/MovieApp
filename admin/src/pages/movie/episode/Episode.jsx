@@ -29,7 +29,7 @@ export default function Episode() {
         deleteEpisode(id, dispatch);
     };
     const movie = useSelector((state) => {
-        return state.movie.movies.find((movie) => movie.slug === slug);
+        return state.movie?.movies.find((movie) => movie?.slug === slug);
     });
     const episodes = useSelector((state) => state.episode.episodes);
 
@@ -44,7 +44,7 @@ export default function Episode() {
         '360p': '',
     });
     useEffect(() => {
-        getEpisodes(movie._id, dispatch);
+        getEpisodes(movie?._id, dispatch);
     }, [dispatch, movie]);
     const handleChange = (e) => {
         setInputs((prev) => {
@@ -59,23 +59,23 @@ export default function Episode() {
     const handleAdd = (e) => {
         e.preventDefault();
         let movieAdd = {};
-        if (movie.isSeries) {
+        if (movie?.isSeries) {
             movieAdd = {
                 ...inputs,
-                movieId: movie._id,
+                movieId: movie?._id,
                 video: videos,
             };
         } else {
             movieAdd = {
                 ...inputs,
-                movieId: movie._id,
+                movieId: movie?._id,
                 episode: 0,
                 video: videos,
             };
         }
 
         addEpisode(movieAdd, dispatch);
-        getEpisodes(movie._id, dispatch);
+        getEpisodes(movie?._id, dispatch);
     };
     const handleUpdate = (e) => {
         e.preventDefault();
@@ -87,13 +87,13 @@ export default function Episode() {
     const Add = (
         <>
             <Grid container spacing={2}>
-                {movie.isSeries && (
+                {movie?.isSeries && (
                     <Input
                         type="number"
                         name="episode"
                         label="Tap"
                         onChange={(e) => {
-                            const newValue = Math.min(Math.max(e.target.value, 1), movie.movieLength);
+                            const newValue = Math.min(Math.max(e.target.value, 1), movie?.movieLength);
                             setValue(newValue);
                             setInputs((prev) => {
                                 return { ...prev, [e.target.name]: e.target.value };
@@ -191,7 +191,7 @@ export default function Episode() {
     return (
         <div className="main">
             <div className="titleContainer">
-                <h1>{movie.title}</h1>
+                <h1>{movie?.title}</h1>
             </div>
             <div>
                 <button

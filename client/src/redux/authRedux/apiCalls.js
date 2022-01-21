@@ -42,11 +42,11 @@ export const logout = async (dispatch) => {
 
 export const updateUser = async (id, updateUser, dispatch) => {
     dispatch(updateUserStart());
-
     try {
         // update
-        await userRequest.put(`/users/${id}`, updateUser);
-        dispatch(updateUserSuccess(updateUser));
+        const res = await userRequest.put(`/users/${id}`, updateUser);
+        dispatch(updateUserSuccess(res.data));
+        return res.data;
     } catch (err) {
         dispatch(updateUserFailure(err));
     }

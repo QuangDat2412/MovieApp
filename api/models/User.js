@@ -8,9 +8,10 @@ const UserSchema = new mongoose.Schema(
         password: { type: String, required: true },
         isAdmin: { type: Boolean, default: false },
         isVip: { type: Boolean, default: false },
-        favorites: { type: Array },
-        history: { type: Array },
+        favorites: [{ type: mongoose.Schema.ObjectId, ref: 'Movie' }],
+        history: [{ type: mongoose.Schema.ObjectId, ref: 'Episode' }],
         img: { type: String, default: '' },
+        refreshToken: { type: String, default: '' },
     },
     { timestamps: true }
 );

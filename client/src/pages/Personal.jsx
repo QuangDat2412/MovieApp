@@ -2,23 +2,23 @@
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { useParams, Link, useHistory } from 'react-router-dom';
-import Button from '../../components/button/Button';
-import { getEpisodes } from '../../redux/episodeRedux/apiCalls';
+import Button from '../components/button/Button';
 import { useDispatch } from 'react-redux';
-import { logout, updateUser } from '../../redux/authRedux/apiCalls';
+import { logout, updateUser } from '../redux/authRedux/apiCalls';
 import { useState, useEffect } from 'react';
 import ClearIcon from '@material-ui/icons/Clear';
-import StripeCheckout from 'react-stripe-checkout';
-import { userRequest } from '../../requestMethods';
-
+import Loader from '../components/loader/Loader';
+import Input from '../components/input/Input';
+import { regPassword } from '../utils';
+import Stripe from '../components/stripe/Stripe';
 export default function Personal() {
     const auth = useSelector((state) => state.auth.currentUser);
     const { slug } = useParams();
-    const movies = useSelector((state) => state.movie.movies);
+    const movies = useSelector((state) => state.movie?.movies);
     const dispatch = useDispatch();
     const [openModal, setOpenModal] = useState(false);
     const history = useHistory();
-
+    const [options, setOptions] = useState();
     useEffect(() => {
         if (openModal) {
             document.body.style.overflowY = 'hidden';
@@ -35,7 +35,7 @@ export default function Personal() {
     };
     return (
         <>
-            <FormModal>{openModal && <Modal setOpenModal={setOpenModal} />}</FormModal>
+            <FormModal>{openModal && <Modal setOpenModal={setOpenModal} options={options} auth={auth} dispatch={dispatch} />}</FormModal>
             <Container>
                 <div>
                     <div>
@@ -61,9 +61,9 @@ export default function Personal() {
                     <div onClick={handleLogout}>Đăng xuất</div>
                 </div>
                 <div>
-                    {slug === 'settings' && <Setting auth={auth} setOpenModal={setOpenModal} dispatch={dispatch} />}
-                    {slug === 'history' && <History auth={auth} movies={movies} dispatch={dispatch} />}
-                    {slug === 'favorite' && <Favorite auth={auth} movies={movies} />}
+                    {slug === 'settings' && <Setting auth={auth} setOpenModal={setOpenModal} setOptions={setOptions} />}
+                    {slug === 'history' && <History auth={auth} movies={movies} />}
+                    {slug === 'favorite' && <Favorite auth={auth} />}
                 </div>
             </Container>
         </>
@@ -71,27 +71,9 @@ export default function Personal() {
 }
 
 const Setting = (props) => {
-    const { auth, dispatch, setOpenModal } = props;
+    const { auth, setOpenModal, setOptions } = props;
     const openModal = () => {
         setOpenModal(true);
-    };
-    const KEY = 'pk_test_51Jlwr4F6PLZamBS7ciFKixxTt5J3JXM1NeMVUTju2g0ISci6lP6Z38dDHHQC1AGkKDIqmrP66PyLzUWxCfRQfgEM002KufD8N4';
-
-    const [stripeToken, setStripeToken] = useState(null);
-    useEffect(() => {
-        const makeRequest = async () => {
-            try {
-                await userRequest.post('/checkout/payment', {
-                    tokenId: stripeToken.id,
-                    amount: 100,
-                });
-                updateUser(auth._id, { isVip: true }, dispatch);
-            } catch {}
-        };
-        stripeToken && makeRequest();
-    }, [stripeToken]);
-    const onToken = (token) => {
-        setStripeToken(token);
     };
     return (
         <SettingPaper>
@@ -107,7 +89,7 @@ const Setting = (props) => {
                     </div>
                     <div>
                         <div>{auth?.fullName}</div>
-                        {auth.isVip ? (
+                        {auth?.isVip ? (
                             <img
                                 src="https://img.icons8.com/dusk/64/000000/vip.png"
                                 className="App-logo"
@@ -116,60 +98,48 @@ const Setting = (props) => {
                             />
                         ) : (
                             <div>
-                                <StripeCheckout
-                                    name="Movie App"
-                                    image="https://avatars.githubusercontent.com/u/1486366?v=4"
-                                    description={`Your total is $5.00`}
-                                    amount={100}
-                                    token={onToken}
-                                    stripeKey={KEY}
-                                >
+                                <Stripe>
                                     <Button>Kích hoạt VIP chỉ 633đ/ngày</Button>
-                                </StripeCheckout>
+                                </Stripe>
                             </div>
                         )}
-                    </div>
-                </div>
-                <div className="form-group">
-                    <div>Tên tài khoản</div>
-                    <input type="text" defaultValue={auth?.fullName} />
-                    <div>
-                        <Button
-                            className="btn"
-                            disabled
-                            onClick={() => {
-                                console.log('1');
-                            }}
-                        >
-                            Hủy bỏ
-                        </Button>
-                        <Button
-                            className="btn"
-                            onClick={() => {
-                                console.log('2');
-                            }}
-                        >
-                            Xác nhận
-                        </Button>
                     </div>
                 </div>
                 <div>
                     <div className="sub-title">Tài khoản và bảo mật</div>
                     <div className="line"></div>
                     <div className="account">
+                        <p>Tên tài khoản</p>
+                        <div>
+                            <span>{auth?.fullName}</span>
+                            <span
+                                className="btn"
+                                onClick={() => {
+                                    setOptions('fullName');
+                                    openModal();
+                                }}
+                            >
+                                Sửa đổi
+                            </span>
+                        </div>
+                    </div>
+                    <div className="account">
                         <p>Email</p>
                         <div>
                             <span>{auth?.email.replace(/(\w{2})[\w.-]+@([\w.]+\w)/, '$1***@$2')}</span>
-                            <span className="btn" onClick={openModal}>
-                                Sửa đổi
-                            </span>
                         </div>
                     </div>
                     <div className="account">
                         <p>Số điện thoại</p>
                         <div>
                             <span>{auth?.phone.replace(/(\d{1})(.*)(\d{3})/, '$1******$3')}</span>
-                            <span className="btn" onClick={openModal}>
+                            <span
+                                className="btn"
+                                onClick={() => {
+                                    setOptions('phone');
+                                    openModal();
+                                }}
+                            >
                                 Sửa đổi
                             </span>
                         </div>
@@ -178,7 +148,13 @@ const Setting = (props) => {
                         <p>Mật khẩu</p>
                         <div>
                             <span className="password">●●●●●●●●●●●●●</span>
-                            <span className="btn" onClick={openModal}>
+                            <span
+                                className="btn"
+                                onClick={() => {
+                                    setOptions('password');
+                                    openModal();
+                                }}
+                            >
                                 Sửa đổi
                             </span>
                         </div>
@@ -189,21 +165,8 @@ const Setting = (props) => {
     );
 };
 const History = (props) => {
-    const { auth, movies, dispatch } = props;
-    useEffect(() => {
-        getEpisodes('', dispatch);
-    }, []);
-    const episodes = useSelector((state) => {
-        return state.episode.episodes;
-    });
-    const arrayEpisodes = [...episodes];
+    const { auth, movies } = props;
 
-    const NewArrayEpisodes = arrayEpisodes.filter((e) => {
-        return auth?.history.includes(e._id);
-    });
-    const historyListMovie = NewArrayEpisodes.map((e) => {
-        return movies.filter((m) => m._id === e.movieId)[0];
-    });
     return (
         <HistoryPaper>
             <div className="title">Lịch sử xem</div>
@@ -214,28 +177,28 @@ const History = (props) => {
                 <div className="line"></div>
             </div>
             <ListEpisode>
-                {NewArrayEpisodes.map((episode, index) => {
-                    const movie = historyListMovie[index];
+                {auth?.history.map((episode, index) => {
+                    const movie = movies.filter((m) => m._id === episode.movieId)[0];
                     return (
                         <div key={index}>
                             <Link
                                 to={
-                                    movie.isSeries
-                                        ? '/watch/' + movie.slug + '-tap-' + episode.episode + '-' + movie.isSeries
-                                        : '/watch/' + movie.slug + '-' + movie.isSeries
+                                    movie?.isSeries
+                                        ? '/watch/' + movie?.slug + '-tap-' + episode?.episode + '-' + movie?.isSeries
+                                        : '/watch/' + movie?.slug + '-' + movie?.isSeries
                                 }
-                                title={movie.title}
+                                title={movie?.title}
                             >
                                 <div>
                                     <div
                                         style={{
-                                            backgroundImage: `url(${movie.imgBanner})`,
+                                            backgroundImage: `url(${movie?.imgBanner})`,
                                         }}
                                         alt=""
                                         className="imgItem"
                                     ></div>
                                 </div>
-                                <h3>{movie.isSeries ? movie.title + ' Tập ' + episode.episode : movie.title}</h3>
+                                <h3>{movie?.isSeries ? movie?.title + ' Tập ' + episode.episode : movie?.title}</h3>
                             </Link>
                         </div>
                     );
@@ -245,11 +208,8 @@ const History = (props) => {
     );
 };
 const Favorite = (props) => {
-    const { auth, movies } = props;
+    const { auth } = props;
 
-    const favoriteListMovie = movies.filter((e) => {
-        return auth?.favorites.includes(e._id);
-    });
     return (
         <FavoritePaper>
             <div className="title">Sưu tập của tôi</div>
@@ -259,20 +219,20 @@ const Favorite = (props) => {
                 </div>
                 <div className="line"></div>
                 <ListEpisode>
-                    {favoriteListMovie.map((movie, index) => {
+                    {auth?.favorites.map((movie, index) => {
                         return (
                             <div key={index}>
-                                <Link to={'/info/' + movie.slug} title={movie.title}>
+                                <Link to={'/detail/' + movie?.slug} title={movie?.title}>
                                     <div>
                                         <div
                                             style={{
-                                                backgroundImage: `url(${movie.imgBanner})`,
+                                                backgroundImage: `url(${movie?.imgBanner})`,
                                             }}
                                             alt=""
                                             className="imgItem"
                                         ></div>
                                     </div>
-                                    <h3>{movie.title}</h3>
+                                    <h3>{movie?.title}</h3>
                                 </Link>
                             </div>
                         );
@@ -286,6 +246,82 @@ const Modal = (props) => {
     const closeModal = () => {
         props.setOpenModal(false);
     };
+    const [loader, setLoader] = useState(false);
+
+    const [inputs, setInputs] = useState({});
+    const handleChange = (e) => {
+        setInputs((prev) => {
+            return { ...prev, [e.target.name]: e.target.value };
+        });
+    };
+    const [status, setStatus] = useState('');
+
+    const [password, setPassword] = useState({ message: '', error: false, show: false });
+    const [rePassword, setRePassword] = useState({ message: '', error: false, show: false });
+    const [oldPassword, setOldPassword] = useState({ message: '', error: false, show: false });
+    const handleShowPassword = (e) => {
+        switch (e) {
+            case 'password':
+                setPassword({ ...password, show: !password.show });
+                break;
+            case 'rePassword':
+                setRePassword({ ...rePassword, show: !rePassword.show });
+                break;
+            case 'oldPassword':
+                setOldPassword({ ...oldPassword, show: !oldPassword.show });
+                break;
+            default:
+        }
+    };
+
+    const validate = (data) => {
+        setPassword({
+            ...password,
+            message: regPassword.test(data.password) ? '' : `Từ 8- 20 ký tự, ít nhất là tổ hợp của hai loại tùy ý gồm chữ cái, con số hoặc ký tự`,
+            error: regPassword.test(data.password) ? false : true,
+        });
+        setRePassword({
+            ...rePassword,
+            message: regPassword.test(data.password) ? '' : `Từ 8- 20 ký tự, ít nhất là tổ hợp của hai loại tùy ý gồm chữ cái, con số hoặc ký tự`,
+            error: regPassword.test(data.password) ? false : true,
+        });
+        setOldPassword({
+            ...oldPassword,
+            message: data.rePassword === data.password ? '' : `Mật khẩu nhập vào hai lần không đồng nhất`,
+            error: data.rePassword === data.password ? false : true,
+        });
+
+        // code block
+    };
+    useEffect(() => {
+        const logKey = (e) => {
+            const keyCode = e.keyCode;
+            if (keyCode === 13) {
+                handleUpdate();
+            }
+            // code block
+        };
+        document.addEventListener('keyup', logKey);
+        return () => {
+            document.removeEventListener('keyup', logKey);
+        };
+    }, []);
+    const handleUpdate = (e) => {
+        e.preventDefault();
+        const data = {
+            ...inputs,
+        };
+        setLoader(true);
+        validate(data);
+        updateUser(props.auth._id, data, props.dispatch).then((res) => {
+            if (res) {
+                closeModal();
+            } else {
+                setStatus('Thay đổi chưa thành công');
+            }
+            setLoader(false);
+        });
+    };
     return (
         <div>
             <Paper>
@@ -295,6 +331,86 @@ const Modal = (props) => {
                         <ClearIcon />
                     </div>
                 </div>
+                <PaperContent>
+                    <div className="title">
+                        <p>Đăng ký</p>
+                    </div>
+                    <Form>
+                        {!(status === '') && <span>{status}</span>}
+                        {props.options === 'fullName' && (
+                            <>
+                                <Input name="fullName" label="Tên tài khoản" type="text" onChange={handleChange} />
+                            </>
+                        )}
+                        {props.options === 'phone' && (
+                            <>
+                                <Input name="phone" label="Tên tài khoản" type="number" onChange={handleChange} />
+                            </>
+                        )}
+                        {props.options === 'password' && (
+                            <>
+                                {' '}
+                                <Input
+                                    name="oldPassword"
+                                    label="Nhập lại mật khẩu"
+                                    type={oldPassword.show ? 'text' : 'password'}
+                                    handleShowPassword={handleShowPassword}
+                                    onChange={handleChange}
+                                    helperText={oldPassword.message}
+                                    error={oldPassword.error}
+                                    onFocus={() => {
+                                        setOldPassword({
+                                            ...oldPassword,
+                                            message: '',
+                                            error: false,
+                                        });
+                                    }}
+                                />
+                                <Input
+                                    name="password"
+                                    label="Mật khẩu"
+                                    type={password.show ? 'text' : 'password'}
+                                    handleShowPassword={handleShowPassword}
+                                    onChange={handleChange}
+                                    helperText={password.message}
+                                    error={password.error}
+                                    onFocus={() => {
+                                        setPassword({
+                                            ...password,
+                                            message: '',
+                                            error: false,
+                                        });
+                                    }}
+                                />
+                                <Input
+                                    name="rePassword"
+                                    label="Nhập lại mật khẩu"
+                                    type={rePassword.show ? 'text' : 'password'}
+                                    handleShowPassword={handleShowPassword}
+                                    onChange={handleChange}
+                                    helperText={rePassword.message}
+                                    error={rePassword.error}
+                                    onFocus={() => {
+                                        setRePassword({
+                                            ...rePassword,
+                                            message: '',
+                                            error: false,
+                                        });
+                                    }}
+                                />
+                            </>
+                        )}
+                        <div className="btn" style={{ marginBottom: '0' }}>
+                            {loader ? (
+                                <Loader className="loader" />
+                            ) : (
+                                <Button fullWidth onClick={handleUpdate}>
+                                    Cập nhật
+                                </Button>
+                            )}
+                        </div>
+                    </Form>
+                </PaperContent>
             </Paper>
             <Mask></Mask>
         </div>
@@ -581,4 +697,105 @@ const Paper = styled.div`
     }
     height: auto;
     overflow: hidden;
+`;
+const PaperContent = styled.div`
+    padding: 0 40px 20px;
+    overflow-y: scroll;
+    overflow-y: overlay;
+    max-height: 500px;
+    & > div {
+        margin: 20px 0;
+    }
+    &::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        background-color: #f5f5f5;
+    }
+
+    &::-webkit-scrollbar {
+        width: 5px;
+        background-color: #f5f5f5;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+        background-color: #e2dbdb;
+    }
+    & > span {
+        display: block;
+        color: red;
+        font-size: 0.8rem;
+    }
+    .title {
+        p {
+            font-size: 1.125rem;
+            color: #222;
+            letter-spacing: 0;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.75rem;
+            margin: 0;
+        }
+    }
+    button {
+        color: var(--white);
+        background: var(--primary-color);
+        &:hover {
+            opacity: 0.7;
+            background: var(--primary-color);
+        }
+    }
+    button {
+        height: 30px;
+        width: 30px;
+    }
+    .btn {
+        position: relative;
+        height: 50px;
+        button {
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .options {
+        margin: 20px 0 0;
+        span {
+            color: #222;
+            letter-spacing: 0;
+            text-align: center;
+            line-height: 1rem;
+            color: #00c234;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+            margin: 0 40px;
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+    }
+    .message {
+        color: var(--primary-color);
+        h1 {
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        h2 {
+            font-size: 0.85rem;
+            color: #000;
+            font-weight: 500;
+        }
+    }
+`;
+const Form = styled.form`
+    & > div {
+        margin: 10px 0;
+    }
+    & > div:last-child {
+        margin: 30px 0;
+    }
 `;

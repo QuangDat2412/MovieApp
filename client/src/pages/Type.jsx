@@ -1,45 +1,31 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { getMovies } from '../../redux/movieRedux/apiCalls';
-import BannerSlide from '../../components/bannerSlide/BannerSlide';
+import BannerSlide from '../components/bannerSlide/BannerSlide';
 import { useParams, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import useFetchData from '../hook/useFetchData';
 
-export default function Year() {
+export default function Type() {
     const { slug } = useParams();
-    console.log(slug);
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [slug]);
-    const dispatch = useDispatch();
-    useEffect(() => {
-        getMovies(dispatch);
-    }, [dispatch]);
-    const movies = useSelector((state) => {
-        return state.movie.movies;
-    });
-    let year;
-    const newMovies = movies.filter((m) => {
-        if (m.year === slug) {
-            year = m.year;
-        }
-        return m.year === slug;
-    });
+    const { listMovies } = useFetchData('movies/type-', slug);
     return (
         <div>
-            <BannerSlide movies={newMovies} />
+            <BannerSlide movies={listMovies} />
             <div className="container">
-                <h2 style={{ marginBottom: '10px' }}> {year ? 'Phim Năm ' + year : ''} </h2>
+                <h2 style={{ marginBottom: '10px' }}> {slug === 'phim-bo' ? 'Phim Bộ' : 'Phim Lẻ'} </h2>
                 <ListEpisode>
-                    {newMovies.map((movie, index) => {
+                    {listMovies.map((movie, index) => {
                         return (
                             <div key={index}>
-                                <Link to={`/info/${movie.slug}`} title={movie.title}>
+                                <Link to={`/detail/${movie?.slug}`} title={movie?.title}>
                                     <div>
-                                        <div style={{ backgroundImage: `url(${movie.imgTitle})` }} alt="" className="imgItem"></div>
+                                        <div style={{ backgroundImage: `url(${movie?.imgTitle})` }} alt="" className="imgItem"></div>
                                     </div>
-                                    <h3>{movie.title}</h3>
+                                    <h3>{movie?.title}</h3>
                                 </Link>
                             </div>
                         );

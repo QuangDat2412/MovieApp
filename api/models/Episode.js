@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const EpisodeSchema = new mongoose.Schema(
     {
-        movieId: { type: String, required: true },
+        movieId: { type: mongoose.Schema.ObjectId, ref: 'Movie' },
         episode: { type: Number, required: true },
         video: { type: Object },
         trailer: { type: String },
@@ -11,4 +11,4 @@ const EpisodeSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model('episode', EpisodeSchema);
+module.exports = mongoose.model('Episode', EpisodeSchema);

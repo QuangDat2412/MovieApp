@@ -1,21 +1,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../../assets/css/style.scss';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import Modal from '../modal/Modal';
-import MobileModal from '../mobileModal/MobileModal';
+import FormatIndentIncreaseIcon from '@material-ui/icons/FormatIndentIncrease';
+import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import SearchBox from '../searchBox/SearchBox';
 import { Button } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import './topBar.scss';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout, updateUser } from '../../redux/authRedux/apiCalls';
+import { logout } from '../../redux/authRedux/apiCalls';
 import { Link } from 'react-router-dom';
-import StripeCheckout from 'react-stripe-checkout';
-import { userRequest } from '../../requestMethods';
+import { convertSlug } from '../../utils';
+import Stripe from '../stripe/Stripe';
+export default function TopBar(props) {
+    const timeId = useRef();
+    const movies = useSelector((state) => state.movie?.movies);
+    const [history, setHistory] = useState(JSON.parse(sessionStorage.getItem(process.env.REACT_APP_SESSION_KEY)) || { history: [] });
+    useEffect(() => {
+        sessionStorage.setItem(process.env.REACT_APP_SESSION_KEY, JSON.stringify(history));
+    }, [history]);
 
-export default function TopBar() {
+    const auth = useSelector((state) => state.auth.currentUser);
+
+    const [select, setSelect] = useState(true);
+    const { setOpenMobileModal, openMobileModal, openModal, setOpenModal } = props;
     window.addEventListener('scroll', () => {
         var scroll = window.scrollY;
         if (scroll >= 100) {
@@ -24,19 +35,13 @@ export default function TopBar() {
             document.getElementById('navBar')?.classList.remove('navBar');
         }
     });
-    const KEY = 'pk_test_51Jlwr4F6PLZamBS7ciFKixxTt5J3JXM1NeMVUTju2g0ISci6lP6Z38dDHHQC1AGkKDIqmrP66PyLzUWxCfRQfgEM002KufD8N4';
-    const auth = useSelector((state) => state.auth.currentUser);
     const dispatch = useDispatch();
-    const [openModal, setOpenModal] = useState(false);
-    const [openMobileModal, setOpenMobileModal] = useState(false);
+
     const [openSearchBox, setOpenSearchBox] = useState(false);
-    const [stripeToken, setStripeToken] = useState(null);
     const handleOpenSearchBox = () => {
         setOpenSearchBox(!openSearchBox);
     };
-    const onToken = (token) => {
-        setStripeToken(token);
-    };
+
     useEffect(() => {
         if (openModal || openMobileModal) {
             document.body.style.overflowY = 'hidden';
@@ -44,37 +49,10 @@ export default function TopBar() {
             document.body.style.overflowY = 'scroll';
         }
     }, [openModal, openMobileModal]);
-    useEffect(() => {
-        const makeRequest = async () => {
-            try {
-                await userRequest.post('/checkout/payment', {
-                    tokenId: stripeToken.id,
-                    amount: 100,
-                });
-                updateUser(auth._id, { isVip: true }, dispatch);
-            } catch {}
-        };
-        stripeToken && makeRequest();
-    }, [stripeToken]);
     const handleLogout = () => {
         logout(dispatch);
     };
-    const convertSlug = (str) => {
-        // remove accents
-        var from = 'àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ',
-            to = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeduuuuuuuuuuuoooooooooooooooooiiiiiaeiiouuncyyyyy';
-        for (var i = 0, l = from.length; i < l; i++) {
-            str = str.replace(RegExp(from[i], 'gi'), to[i]);
-        }
 
-        str = str
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9\\-]/g, '-')
-            .replace(/-+/g, '-');
-
-        return str;
-    };
     const genre = [
         'Phiêu Lưu',
         'Hành Động',
@@ -135,9 +113,9 @@ export default function TopBar() {
                                         <List className="list">
                                             {genre.map((g, i) => {
                                                 return (
-                                                    <li key={i}>
+                                                    <div key={i}>
                                                         <Link to={'/genre/phim-' + convertSlug(g)}>{g}</Link>
-                                                    </li>
+                                                    </div>
                                                 );
                                             })}
                                         </List>
@@ -145,84 +123,166 @@ export default function TopBar() {
                                     <Chanel>
                                         <div className="header-item">Quốc gia</div>
                                         <List className="list">
-                                            <li>
+                                            <div>
                                                 <Link to="/country/trung-quoc">Trung Quốc</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/au-my">Âu Mỹ</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/thai-lan">Thái Lan</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/viet-nam">Việt Nam</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/an-do">Ấn độ</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/nhat-ban">Nhật Bản</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/han-quoc">Hàn Quốc</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/country/dai-loan">Đài Loan</Link>
-                                            </li>
-                                            <li>
-                                                <Link to="/country/hong-konh">Hồng Kông</Link>
-                                            </li>
-                                            <li>
-                                                <Link to="/country/">Khác</Link>
-                                            </li>
+                                            </div>
+                                            <div>
+                                                <Link to="/country/hong-kong">Hồng Kông</Link>
+                                            </div>
                                         </List>
                                     </Chanel>
                                     <Chanel>
                                         <div className="header-item">Năm phát hành</div>
                                         <List className="list">
-                                            <li>
+                                            <div>
                                                 <Link to="/year/2015">2015</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/year/2016">2016</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/year/2017">2017</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/year/2018">2018</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/year/2019">2019</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/year/2020">2020</Link>
-                                            </li>
-                                            <li>
+                                            </div>
+                                            <div>
                                                 <Link to="/year/2021">2021</Link>
-                                            </li>
+                                            </div>
                                         </List>
                                     </Chanel>
                                 </div>
                             </LeftBar>
                             <RightBar>
                                 <div onClick={handleOpenSearchBox}></div>
-                                <SearchBox convertSlug={convertSlug} />
+                                <SearchBox />
+                                <HistoryAndFavorite>
+                                    <div>
+                                        <FormatIndentIncreaseIcon />
+                                    </div>
+                                    <List className="list_movie">
+                                        <div>
+                                            <div
+                                                onClick={() => {
+                                                    document.getElementById('line').style.transform = 'translateX(25px)';
+                                                    document.getElementById('line').style.width = '120px';
+                                                    setSelect(true);
+                                                }}
+                                            >
+                                                <AccessTimeIcon /> &nbsp; Lịch sử xem
+                                            </div>
+                                            <div></div>
+                                            <div
+                                                onClick={() => {
+                                                    setSelect(false);
+                                                    document.getElementById('line').style.transform = 'translateX(175px)';
+                                                    document.getElementById('line').style.width = '140px';
+                                                }}
+                                            >
+                                                <PlaylistAddCheckIcon /> &nbsp; Sưu tập của tôi
+                                            </div>
+                                        </div>
+                                        <div id="line"></div>
+                                        <div></div>
+                                        {select ? (
+                                            <div>
+                                                {auth?.history.map((episode, index) => {
+                                                    const movie = movies.filter((m) => m._id === episode.movieId)[0];
+                                                    return (
+                                                        <div key={index}>
+                                                            <Link
+                                                                to={
+                                                                    movie?.isSeries
+                                                                        ? '/watch/' + movie?.slug + '-tap-' + episode.episode + '-' + movie?.isSeries
+                                                                        : '/watch/' + movie?.slug + '-' + movie?.isSeries
+                                                                }
+                                                                title={movie?.title}
+                                                            >
+                                                                <div
+                                                                    style={{
+                                                                        backgroundImage: `url(${movie?.imgBanner})`,
+                                                                    }}
+                                                                ></div>
+                                                                <div>{movie?.isSeries ? movie?.title + ' Tập ' + episode.episode : movie?.title}</div>
+                                                            </Link>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {auth?._id ? (
+                                                    <div>
+                                                        {auth?.favorites.map((movie, index) => {
+                                                            return (
+                                                                <div key={index}>
+                                                                    <Link to={`/detail/${movie?.slug}`}>
+                                                                        <div style={{ backgroundImage: `url(${movie?.imgBanner})` }}></div>
+                                                                        <div>{movie?.title}</div>
+                                                                    </Link>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                ) : (
+                                                    <div className="no_login">
+                                                        <img src="http://www.iqiyipic.com/common/fix/empty_history.png" alt=""></img>
+                                                        <div>Đăng nhập để quản lý bộ sưu tập phim của bạn trên các thiết bị khác nhau. </div>
+                                                        <div
+                                                            onClick={() => {
+                                                                setOpenModal(true);
+                                                            }}
+                                                        >
+                                                            Đăng nhập
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </List>
+                                </HistoryAndFavorite>
                                 <UserBox>
                                     {auth?._id ? (
                                         <>
                                             <div>
                                                 <img src={auth.img} alt="" className="topAvatar" />
                                                 <List className="list">
-                                                    <li>
+                                                    <div>
                                                         <span>{auth.fullName}</span>
-                                                    </li>
-                                                    <li>
+                                                    </div>
+                                                    <div>
                                                         <Link to="/personal/settings">Cài đặt cá nhân</Link>
-                                                    </li>
-                                                    <li onClick={handleLogout}>
+                                                    </div>
+                                                    <div onClick={handleLogout}>
                                                         <span>Đăng Xuất</span>
-                                                    </li>
+                                                    </div>
                                                 </List>
                                             </div>
                                         </>
@@ -234,40 +294,55 @@ export default function TopBar() {
                                         />
                                     )}
                                 </UserBox>
-                                {!auth?.isVip && (
-                                    <Logo>
-                                        <StripeCheckout
-                                            name="Movie App"
-                                            image="https://avatars.githubusercontent.com/u/1486366?v=4"
-                                            description={`Your total is $5.00`}
-                                            amount={100}
-                                            token={onToken}
-                                            stripeKey={KEY}
-                                        >
-                                            <div>
-                                                <img
-                                                    src="https://img.icons8.com/dusk/64/000000/vip.png"
-                                                    className="App-logo"
-                                                    alt="logo"
-                                                    style={{ width: '40px', height: '40px' }}
-                                                />
-                                            </div>
-                                        </StripeCheckout>
+                                {auth?._id ? (
+                                    <>
+                                        {true && (
+                                            <Logo>
+                                                <Stripe>
+                                                    <div>
+                                                        <img
+                                                            src="https://img.icons8.com/dusk/64/000000/vip.png"
+                                                            className="App-logo"
+                                                            alt="logo"
+                                                            style={{ width: '40px', height: '40px' }}
+                                                        />
+                                                    </div>
+                                                </Stripe>
+                                            </Logo>
+                                        )}
+                                    </>
+                                ) : (
+                                    <Logo
+                                        onClick={() => {
+                                            document.querySelector('.messages').style.display = 'block';
+                                            clearTimeout(timeId.current);
+                                            timeId.current = setTimeout(() => {
+                                                document.querySelector('.messages').style.display = 'none';
+                                            }, 5000);
+                                        }}
+                                    >
+                                        <div>
+                                            <img
+                                                src="https://img.icons8.com/dusk/64/000000/vip.png"
+                                                className="App-logo"
+                                                alt="logo"
+                                                style={{ width: '40px', height: '40px' }}
+                                            />
+                                        </div>
+                                        <div className="messages">Vui lòng đăng nhập để sử dụng dịch vụ</div>
                                     </Logo>
                                 )}
                             </RightBar>
                         </>
                     ) : (
                         <div style={{ alignItems: 'center', display: 'flex', height: '60px' }}>
-                            <SearchBox className="searchBoxMobile" convertSlug={convertSlug} />
+                            <SearchBox className="searchBoxMobile" />
                             <Button onClick={handleOpenSearchBox} style={{ color: 'white' }}>
                                 Huy
                             </Button>
                         </div>
                     )}
                 </div>
-                {openMobileModal && <MobileModal setOpenMobileModal={setOpenMobileModal} setOpenModal={setOpenModal} />}
-                {openModal && <Modal setOpenModal={setOpenModal} />}
             </NavBar>
         </>
     );
@@ -318,21 +393,37 @@ const MobileMenu = styled.div`
     }
 `;
 const Logo = styled.div`
-    font-size: 0px;
     position: relative;
     height: 100%;
     display: flex;
     align-items: center;
-    a {
+    position: relative;
+
+    div {
         margin: auto 0px;
         img {
             width: 40px;
             height: 40px;
         }
     }
+    .messages {
+        width: 200px;
+        position: absolute;
+        color: white;
+        background: rgb(26, 28, 34);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        top: 55px;
+        right: -50px;
+        text-align: left;
+        padding: 10px;
+        display: none;
+        font-size: 0.8rem;
+        text-align: justify;
+        border-radius: 5px;
+    }
     @media screen and (max-width: 767px) {
         height: 40px;
-        a {
+        div {
             img {
                 width: 30px;
                 height: 30px;
@@ -429,6 +520,10 @@ const UserBox = styled.div`
         display: flex;
         width: 150px;
         left: 0;
+        flex-direction: column;
+        & > div {
+            width: 100%;
+        }
         &:before {
             left: 65%;
         }
@@ -444,7 +539,143 @@ const UserBox = styled.div`
         display: none;
     }
 `;
-const List = styled.ul`
+const HistoryAndFavorite = styled.div`
+    margin-left: 16px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    & > div:nth-child(1) {
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    &:hover .list_movie {
+        display: block;
+    }
+    & > div:nth-child(2) {
+        width: 340px;
+        & > div:nth-child(1) {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 15px 0;
+            & > div {
+                display: flex;
+                justify-content: center;
+                padding: 0 10px 15px;
+            }
+            & > div:nth-child(2) {
+                width: 2px;
+                height: 24px;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                padding: 0;
+            }
+            &: hover {
+                background: rgb(26, 28, 34);
+            }
+        }
+        & > div:nth-child(3) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            width: 100%;
+        }
+        & > div:nth-child(2) {
+            border-bottom: 3px solid var(--primary-color);
+            width: 120px;
+            transform: translateX(25px);
+            transition: transform 0.5s ease;
+        }
+        & > div:nth-child(4) {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            height: 300px;
+            width: 100%;
+            padding-top: 10px;
+            &::-webkit-scrollbar-track {
+                box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+                background-color: #f5f5f5;
+                border-radius: 10px;
+            }
+
+            &::-webkit-scrollbar {
+                width: 5px;
+                background-color: #f5f5f5;
+                border-radius: 10px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                border-radius: 10px;
+                box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+                background-color: var(--primary-color);
+            }
+            & > div {
+                &:hover {
+                    background-color: #2d2f34;
+                    a {
+                        & > div:nth-child(2) {
+                            color: var(--primary-color);
+                        }
+                    }
+                }
+                a {
+                    display: flex;
+                    margin-left: 20px;
+                    & > div:nth-child(1) {
+                        padding-top: 16.875%;
+                        background-repeat: no-repeat;
+                        width: 30%;
+                        border-radius: 5px;
+                        margin: 0;
+                        background-size: cover;
+                        object-fit: cover;
+                    }
+                    & > div:nth-child(2) {
+                        padding-left: 1rem;
+                        width: 60%;
+                        font-size: 0.8rem;
+                        text-align: left;
+                    }
+                }
+            }
+            &: hover {
+                background: rgb(26, 28, 34);
+            }
+        }
+
+        .no_login {
+            overflow-y: hidden !important;
+            padding-top: 30px !important;
+            & > div:nth-child(2) {
+                font-size: 0.8rem;
+                color: rgb(130, 131, 135);
+                letter-spacing: 0px;
+                text-align: center;
+                line-height: 1rem;
+                padding: 10px 20px;
+            }
+            & > div:nth-child(3) {
+                text-align: center;
+                line-height: 1rem;
+                padding: 10px 20px;
+                background-color: var(--primary-color);
+                width: 130px;
+                border-radius: 5px;
+                margin: 0 auto;
+                &:hover {
+                    background-color: var(--primary-color);
+                    opacity: 0.5;
+                }
+            }
+        }
+    }
+`;
+const List = styled.div`
     display: none;
     list-style: none;
     margin: 0;
@@ -459,7 +690,7 @@ const List = styled.ul`
     width: 360px;
     flex-direction: row;
     flex-wrap: wrap;
-    & li {
+    & > div {
         text-align: center;
         line-height: 24px;
         font-size: 14px;
@@ -478,7 +709,7 @@ const List = styled.ul`
             padding: 10px 0;
         }
     }
-    & &:after {
+    &:after {
         content: '';
         width: 100%;
         height: 10px;

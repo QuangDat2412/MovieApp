@@ -1,6 +1,5 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import movieReducer from './movieRedux/movieRedux';
-import episodeReducer from './episodeRedux/episodeRedux';
 import authReducer from './authRedux/authRedux';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -13,7 +12,6 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
     movie: movieReducer,
-    episode: episodeReducer,
     auth: authReducer,
 });
 

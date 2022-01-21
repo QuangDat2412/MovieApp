@@ -23,12 +23,12 @@ const BannerSlide = (props) => {
             {movies.map((movie, index) => {
                 return (
                     <Wrap key={index}>
-                        <Link to={'/info/' + movie.slug} title={movie.title}>
-                            <div style={{ backgroundImage: `url(${movie.imgBanner})` }}>
+                        <Link to={'/detail/' + movie?.slug} title={movie?.title}>
+                            <div style={{ backgroundImage: `url(${movie?.imgBanner})` }}>
                                 <WrapContent className="container">
                                     <div>
-                                        <h2 className="title">{movie.title}</h2>
-                                        <p className="desc">{movie.desc}</p>
+                                        <h2 className="title">{movie?.title}</h2>
+                                        <p className="desc">{movie?.desc}</p>
                                         <div className="boxBtn">
                                             <Button>
                                                 <PlayArrowIcon />
@@ -36,7 +36,7 @@ const BannerSlide = (props) => {
                                         </div>
                                     </div>
                                     <div>
-                                        <img src={movie.imgTitle} alt="" className="w500" />
+                                        <img src={movie?.imgTitle} alt="" className="w500" />
                                     </div>
                                 </WrapContent>
                             </div>

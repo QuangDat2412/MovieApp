@@ -1,58 +1,42 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { getMovies } from '../../redux/movieRedux/apiCalls';
-import BannerSlide from '../../components/bannerSlide/BannerSlide';
 import { useParams, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { useLocation } from 'react-router';
 
-export default function Type() {
+export default function Search() {
     const { slug } = useParams();
-    console.log(slug);
-    let newMovies = [];
+    const location = useLocation();
+    const data = location.state?.data ? location.state?.data : [];
+    const value = location.state?.value ? location.state?.value : '';
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [slug]);
-    const dispatch = useDispatch();
-    useEffect(() => {
-        getMovies(dispatch);
-    }, [dispatch]);
-    const movies = useSelector((state) => {
-        return state.movie.movies;
-    });
-    switch (slug) {
-        case 'phim-bo':
-            newMovies = movies?.filter((m) => m.isSeries);
-            break;
-        case 'phim-le':
-            newMovies = movies?.filter((m) => !m.isSeries);
-            break;
-        default:
-        // code block
-    }
+
     return (
-        <div>
-            <BannerSlide movies={newMovies} />
+        <Container>
             <div className="container">
-                <h2 style={{ marginBottom: '10px' }}> {slug === 'phim-bo' ? 'Phim Bộ' : 'Phim Lẻ'} </h2>
+                <h2 style={{ marginBottom: '10px' }}> {'Từ khóa tìm kiếm: ' + value} </h2>
                 <ListEpisode>
-                    {newMovies.map((movie, index) => {
+                    {data.map((movie, index) => {
                         return (
                             <div key={index}>
-                                <Link to={`/info/${movie.slug}`} title={movie.title}>
+                                <Link to={`/detail/${movie?.slug}`} title={movie?.title}>
                                     <div>
-                                        <div style={{ backgroundImage: `url(${movie.imgTitle})` }} alt="" className="imgItem"></div>
+                                        <div style={{ backgroundImage: `url(${movie?.imgTitle})` }} alt="" className="imgItem"></div>
                                     </div>
-                                    <h3>{movie.title}</h3>
+                                    <h3>{movie?.title}</h3>
                                 </Link>
                             </div>
                         );
                     })}
                 </ListEpisode>
             </div>
-        </div>
+        </Container>
     );
 }
+const Container = styled.div`
+    margin-top: 100px;
+`;
 const ListEpisode = styled.div`
     display: flex;
     flex-wrap: wrap;

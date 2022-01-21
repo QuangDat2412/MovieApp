@@ -1,29 +1,36 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { getMovies } from '../../redux/movieRedux/apiCalls';
-import './home.scss';
-import BannerSlide from '../../components/bannerSlide/BannerSlide';
-import ListMovie from '../../components/listMovie/ListMovie';
+import { getMovies } from '../redux/movieRedux/apiCalls';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import BannerSlide from '../components/bannerSlide/BannerSlide';
+import ListMovie from '../components/listMovie/ListMovie';
 
 export default function Home() {
     const { slug } = useParams();
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [slug]);
     const dispatch = useDispatch();
     useEffect(() => {
         getMovies(dispatch);
-    }, [dispatch]);
-    const movies = useSelector((state) => state.movie.movies);
+        window.scrollTo(0, 0);
+    }, [slug, dispatch]);
+    const movies = useSelector((state) => state.movie?.movies);
+    const movies1 = movies.filter((m) => m.trending === 1);
+    const auMy = movies.filter((m) => m.country === 'Âu Mỹ').reverse();
+    const phimLe = movies.filter((m) => !m.isSeries);
     return (
         <div>
-            <BannerSlide movies={movies} />
+            <BannerSlide movies={movies1} />
             <div className="container">
                 <h2 style={{ marginBottom: '10px' }}> Đề Xuất </h2>
-                <ListMovie />
+                <ListMovie movies={movies1} />
+            </div>
+            <div className="container">
+                <h2 style={{ marginBottom: '10px' }}> Âu Mỹ </h2>
+                <ListMovie movies={auMy} />
+            </div>
+            <div className="container">
+                <h2 style={{ marginBottom: '10px' }}> Phim Lẻ </h2>
+                <ListMovie movies={phimLe} />
             </div>
         </div>
     );

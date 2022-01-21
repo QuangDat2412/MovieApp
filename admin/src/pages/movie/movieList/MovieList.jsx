@@ -10,7 +10,7 @@ import LoadingSpin from 'react-loading-spin';
 
 export default function MovieList() {
     const dispatch = useDispatch();
-    const movies = useSelector((state) => state.movie.movies);
+    const movies = useSelector((state) => state.movie?.movies);
 
     const [open, setOpen] = useState(false);
     const [openID, setOpenID] = useState(false);

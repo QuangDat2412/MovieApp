@@ -14,11 +14,15 @@ const Input = (props) => {
                 variant="outlined"
                 autoComplete="off"
                 InputProps={
-                    inputProps.name === 'password' || inputProps.name === 'rePassword'
+                    inputProps.name === 'password' || inputProps.name === 'rePassword' || inputProps.name === 'oldPassword'
                         ? {
                               endAdornment: (
                                   <InputAdornment position="end">
-                                      <IconButton onClick={handleShowPassword}>
+                                      <IconButton
+                                          onClick={() => {
+                                              handleShowPassword(inputProps.name);
+                                          }}
+                                      >
                                           {inputProps.type === 'password' ? <Visibility /> : <VisibilityOff />}
                                       </IconButton>
                                   </InputAdornment>

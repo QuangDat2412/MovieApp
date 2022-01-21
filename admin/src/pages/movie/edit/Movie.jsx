@@ -16,7 +16,7 @@ export default function Movie() {
     const history = useHistory();
     const { slug } = useParams();
     const movie = useSelector((state) => {
-        return state.movie.movies.find((movie) => movie.slug === slug);
+        return state.movie?.movies.find((movie) => movie?.slug === slug);
     });
     const [inputs, setInputs] = useState(movie);
     const handleChange = useCallback((e) => {
@@ -69,7 +69,7 @@ export default function Movie() {
             }
         }, '');
         alert(messAlert);
-        updateMovie(movie._id, movieUpdate, dispatch);
+        updateMovie(movie?._id, movieUpdate, dispatch);
         getMovies(dispatch);
 
         history.push('/movies');
@@ -77,36 +77,36 @@ export default function Movie() {
     const Component = (
         <>
             <Grid container spacing={2}>
-                <Input type="text" name="titleEng" label="Ten tieng anh" onChange={handleChange} defaultValue={movie.titleEng} />
-                <Input type="number" name="year" label="Nam san xuat" onChange={handleChange} defaultValue={movie.year} />
-                <Input type="text" name="country" label="Quoc gia" onChange={handleChange} defaultValue={movie.country} />
-                <Input type="text" multiline name="desc" label="Mo ta" maxRows={4} onChange={handleChange} defaultValue={movie.desc} />
-                <Input type="text" name="director" label="Dao dien" onChange={handleArr} defaultValue={movie.director.toString()} />
-                <Input type="text" name="actor" label="Dien Vien" onChange={handleArr} defaultValue={movie.actor.toString()} />
-                <Input type="text" name="genre" label="The loai" onChange={handleArr} defaultValue={movie.genre.toString()} />
-                <Input type="number" name="trending" defaultValue={movie.trending} label="Trending" onChange={handleChange} />
+                <Input type="text" name="titleEng" label="Ten tieng anh" onChange={handleChange} defaultValue={movie?.titleEng} />
+                <Input type="number" name="year" label="Nam san xuat" onChange={handleChange} defaultValue={movie?.year} />
+                <Input type="text" name="country" label="Quoc gia" onChange={handleChange} defaultValue={movie?.country} />
+                <Input type="text" multiline name="desc" label="Mo ta" maxRows={4} onChange={handleChange} defaultValue={movie?.desc} />
+                <Input type="text" name="director" label="Dao dien" onChange={handleArr} defaultValue={movie?.director.toString()} />
+                <Input type="text" name="actor" label="Dien Vien" onChange={handleArr} defaultValue={movie?.actor.toString()} />
+                <Input type="text" name="genre" label="The loai" onChange={handleArr} defaultValue={movie?.genre.toString()} />
+                <Input type="number" name="trending" defaultValue={movie?.trending} label="Trending" onChange={handleChange} />
                 <Select
                     onChange={handleChange}
                     name="isVip"
                     label="Is Vip"
-                    defaultValue={String(movie.isVip)}
+                    defaultValue={String(movie?.isVip)}
                     options={useCallback({ Yes: 'true', No: 'false' }, [])}
                 />
                 <Select
                     onChange={handleChange}
                     name="isSeries"
                     label="Is Series"
-                    defaultValue={String(movie.isSeries)}
+                    defaultValue={String(movie?.isSeries)}
                     options={useCallback({ Yes: 'true', No: 'false' }, [])}
                 />
                 {inputs.isSeries ? (
-                    <Input type="number" name="movieLength" defaultValue={movie.movieLength} label="Do dai phim" onChange={handleChange} />
+                    <Input type="number" name="movieLength" defaultValue={movie?.movieLength} label="Do dai phim" onChange={handleChange} />
                 ) : (
                     ''
                 )}
             </Grid>
-            <InputImg setInputs={setInputs} inputs={inputs} onChange={handleChange} name="imgTitle" defaultValue={movie.imgTitle} />
-            <InputImg setInputs={setInputs} inputs={inputs} onChange={handleChange} name="imgBanner" defaultValue={movie.imgBanner} />
+            <InputImg setInputs={setInputs} inputs={inputs} onChange={handleChange} name="imgTitle" defaultValue={movie?.imgTitle} />
+            <InputImg setInputs={setInputs} inputs={inputs} onChange={handleChange} name="imgBanner" defaultValue={movie?.imgBanner} />
             <Button type="submit" fullWidth variant="contained" color="primary" className="submit btn" onClick={handleSubmit}>
                 Submit
             </Button>
@@ -116,7 +116,7 @@ export default function Movie() {
         <div className="main">
             <div className="titleContainer">
                 <h1>Edit Movie</h1>
-                <Link to={`/episode/${movie.slug}`}>
+                <Link to={`/episode/${movie?.slug}`}>
                     <button className="addButton">Edit Episode</button>
                 </Link>
             </div>

@@ -37,10 +37,7 @@ const authSlice = createSlice({
             state.isFetching = false;
             state.status = 'Cập nhật thành công';
             state.error = false;
-            Object.keys(action.payload).map((key) => {
-                state.currentUser[key] = action.payload[key];
-                return 0;
-            });
+            state.currentUser = action.payload;
         },
         updateUserFailure: (state) => {
             state.status = 'Email da ton tai';

@@ -72,7 +72,7 @@ const InputImg = ({ setInputs, inputs, onChange, name, defaultValue }) => {
                         )}
                     </>
                 ) : (
-                    <Input type="text" placeholder="" name={name} defaultValue={defaultValue} onChange={onChange} label="Ảnh" />
+                    <Input type="text" placeholder="" name={name} defaultValue={defaultValue} onChange={onChange} label="Ảnh" fullWidth />
                 )}
             </Grid>
 

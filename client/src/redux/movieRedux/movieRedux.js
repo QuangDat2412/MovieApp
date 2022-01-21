@@ -21,62 +21,8 @@ const movieSlice = createSlice({
             state.isFetching = false;
             state.error = true;
         },
-        //DELETE
-        deleteMovieStart: (state) => {
-            state.isFetching = true;
-            state.error = false;
-        },
-        deleteMovieSuccess: (state, action) => {
-            state.isFetching = false;
-            state.movies.splice(
-                state.movies.findIndex((item) => item._id === action.payload),
-                1
-            );
-        },
-        deleteMovieFailure: (state) => {
-            state.isFetching = false;
-            state.error = true;
-        },
-        //UPDATE
-        updateMovieStart: (state) => {
-            state.isFetching = true;
-            state.error = false;
-        },
-
-        updateMovieSuccess: (state, action) => {
-            state.isFetching = false;
-        },
-        updateMovieFailure: (state) => {
-            state.isFetching = false;
-            state.error = true;
-        },
-        addNewMovieStart: (state) => {
-            state.isFetching = true;
-            state.error = false;
-        },
-        addNewMovieSuccess: (state, action) => {
-            state.isFetching = false;
-            state.movie.push(action.payload);
-        },
-        addNewMovieFailure: (state) => {
-            state.isFetching = false;
-            state.error = true;
-        },
     },
 });
 
-export const {
-    getMovieStart,
-    getMovieSuccess,
-    getMovieFailure,
-    deleteMovieStart,
-    deleteMovieSuccess,
-    deleteMovieFailure,
-    updateMovieStart,
-    updateMovieSuccess,
-    updateMovieFailure,
-    addNewMovieStart,
-    addNewMovieSuccess,
-    addNewMovieFailure,
-} = movieSlice.actions;
+export const { getMovieStart, getMovieSuccess, getMovieFailure } = movieSlice.actions;
 export default movieSlice.reducer;

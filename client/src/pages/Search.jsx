@@ -20,6 +20,7 @@ export default function Search() {
                     {data.map((movie, index) => {
                         return (
                             <div key={index}>
+                                {' '}
                                 <Link to={`/detail/${movie?.slug}`} title={movie?.title}>
                                     <div>
                                         <div style={{ backgroundImage: `url(${movie?.imgTitle})` }} alt="" className="imgItem"></div>

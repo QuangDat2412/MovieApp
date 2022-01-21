@@ -1,20 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from 'react';
-import '../../assets/css/style.scss';
+import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../redux/authRedux/apiCalls';
+import { Link } from 'react-router-dom';
+import { convertSlug } from '../utils';
+import Stripe from './Stripe';
+import SearchBox from './SearchBox';
+import { Button } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import FormatIndentIncreaseIcon from '@material-ui/icons/FormatIndentIncrease';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
-import SearchBox from '../searchBox/SearchBox';
-import { Button } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
-import './topBar.scss';
-import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../../redux/authRedux/apiCalls';
-import { Link } from 'react-router-dom';
-import { convertSlug } from '../../utils';
-import Stripe from '../stripe/Stripe';
+
 export default function TopBar(props) {
     const timeId = useRef();
     const movies = useSelector((state) => state.movie?.movies);

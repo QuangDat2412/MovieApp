@@ -2,15 +2,15 @@
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { useParams, Link, useHistory } from 'react-router-dom';
-import Button from '../components/button/Button';
 import { useDispatch } from 'react-redux';
 import { logout, updateUser } from '../redux/authRedux/apiCalls';
 import { useState, useEffect } from 'react';
-import ClearIcon from '@material-ui/icons/Clear';
-import Loader from '../components/loader/Loader';
-import Input from '../components/input/Input';
 import { regPassword } from '../utils';
-import Stripe from '../components/stripe/Stripe';
+import ClearIcon from '@material-ui/icons/Clear';
+import Loader from '../components/Loader';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import Stripe from '../components/Stripe';
 export default function Personal() {
     const auth = useSelector((state) => state.auth.currentUser);
     const { slug } = useParams();

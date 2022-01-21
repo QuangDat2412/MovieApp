@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { userRequest } from '../../requestMethods';
-import { updateUser } from '../../redux/authRedux/apiCalls';
+import { userRequest } from '../requestMethods';
+import { updateUser } from '../redux/authRedux/apiCalls';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import StripeCheckout from 'react-stripe-checkout';

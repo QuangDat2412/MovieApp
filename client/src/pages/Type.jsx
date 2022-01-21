@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from 'react';
-import BannerSlide from '../components/bannerSlide/BannerSlide';
+import BannerSlide from '../components/BannerSlide';
 import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import useFetchData from '../hook/useFetchData';

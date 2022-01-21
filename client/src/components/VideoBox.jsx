@@ -1,4 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
+import { publicRequest, userRequest } from '../requestMethods';
+import { updateUserSuccess } from '../redux/authRedux/authRedux';
+import { useDispatch } from 'react-redux';
+import Stripe from './Stripe';
+import { formatTime } from '../utils';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
 import Forward5Icon from '@material-ui/icons/Forward5';
@@ -9,15 +17,7 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
-import Loader from '../../components/loader/Loader';
-import { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
-import { publicRequest, userRequest } from '../../requestMethods';
-import { updateUserSuccess } from '../../redux/authRedux/authRedux';
-import { useDispatch } from 'react-redux';
-import Stripe from '../stripe/Stripe';
-import { formatTime } from '../../utils';
+import Loader from './Loader';
 const VideoBox = (props) => {
     const slug = useParams();
     const dispatch = useDispatch();

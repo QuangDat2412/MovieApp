@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
-import Button from '../button/Button';
+import Button from './Button';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import { memo } from 'react';
 const BannerSlide = (props) => {

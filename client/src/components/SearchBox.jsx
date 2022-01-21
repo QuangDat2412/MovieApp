@@ -1,11 +1,10 @@
 import { useState, memo } from 'react';
-import '../../assets/css/style.scss';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { publicRequest } from '../../requestMethods';
-import { convertSlug } from '../../utils';
+import { publicRequest } from '../requestMethods';
+import { convertSlug } from '../utils';
 
 const Search = styled.div`
     @media screen and (max-width: 1023px) {

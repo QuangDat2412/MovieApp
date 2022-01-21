@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux';
 import { getMovies } from '../redux/movieRedux/apiCalls';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import BannerSlide from '../components/bannerSlide/BannerSlide';
-import ListMovie from '../components/listMovie/ListMovie';
+import BannerSlide from '../components/BannerSlide';
+import ListMovie from '../components/ListMovie';
 
 export default function Home() {
     const { slug } = useParams();

@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import VideoBox from '../components/videoBox/VideoBox';
-import ListMovie from '../components/listMovie/ListMovie';
+import VideoBox from '../components/VideoBox';
+import ListMovie from '../components/ListMovie';
 import { ContentInfo } from './Detail';
 import { getMovies } from '../redux/movieRedux/apiCalls';
 

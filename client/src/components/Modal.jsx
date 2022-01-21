@@ -1,16 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, memo, useCallback, useRef, useEffect } from 'react';
-import '../../assets/css/style.scss';
+import styled from 'styled-components';
+import { login, register } from '../redux/authRedux/apiCalls';
+import { useDispatch } from 'react-redux';
+import { publicRequest } from '../requestMethods';
+import { regEmail, regPassword } from '../utils';
 import ClearIcon from '@material-ui/icons/Clear';
-import Loader from '../loader/Loader';
+import Loader from './Loader';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Button } from '@material-ui/core';
-import Input from '../input/Input';
-import styled from 'styled-components';
-import { login, register } from '../../redux/authRedux/apiCalls';
-import { useDispatch } from 'react-redux';
-import { publicRequest } from '../../requestMethods';
-import { regEmail, regPassword } from '../../utils';
+import Input from './Input';
 const Modal = (props) => {
     const [switchModal, setSwitchModal] = useState('login');
 

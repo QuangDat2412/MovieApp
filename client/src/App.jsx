@@ -9,11 +9,12 @@ import Country from './pages/Country';
 import Search from './pages/Search';
 import Watch from './pages/Watch';
 import Personal from './pages/Personal';
-import TopBar from './components/topBar/TopBar';
-import Footer from './components/footer/Footer';
-import Modal from './components/modal/Modal';
-import MobileModal from './components/mobileModal/MobileModal';
+import TopBar from './components/TopBar';
+import Footer from './components/Footer';
+import Modal from './components/Modal';
+import MobileModal from './components/MobileModal';
 import './App.scss';
+import '../src/assets/css/style.scss';
 const App = () => {
     const [openModal, setOpenModal] = useState(false);
     const [openMobileModal, setOpenMobileModal] = useState(false);

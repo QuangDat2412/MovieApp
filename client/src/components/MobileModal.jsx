@@ -1,10 +1,9 @@
 import { memo } from 'react';
-import '../../assets/css/style.scss';
 import styled from 'styled-components';
 import ClearIcon from '@material-ui/icons/Clear';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../../redux/authRedux/apiCalls';
+import { logout } from '../redux/authRedux/apiCalls';
 import { Link } from 'react-router-dom';
 
 const FormModal = styled.div`

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 const ListEpisode = (props) => {
-    console.log(props);
     return (
         <div className="container">
             <h2 style={{ marginBottom: '10px' }}> {props.string}</h2>
@@ -21,6 +20,7 @@ const ListEpisode = (props) => {
                                     )}
                                 </div>
                                 <h3>{movie?.title}</h3>
+                                <h2>{movie?.titleEng}</h2>
                             </Link>
                         </div>
                     );
@@ -65,9 +65,19 @@ const ListEpisodeBox = styled.div`
                     background-size: cover;
                 }
             }
-            & > h3 {
-                transition: all 0.3s ease-in-out 0s;
+            & > h3,
+            & > h2 {
                 font-size: 0.9rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+            }
+            & > h2 {
+                font-size: 0.7rem;
+                color: #abb7c4;
+                text-transform: none;
             }
         }
         &:hover .imgItem {

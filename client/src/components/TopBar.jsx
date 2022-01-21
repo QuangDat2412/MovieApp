@@ -17,7 +17,7 @@ import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 const TopBar = (props) => {
     const timeId = useRef();
     const movies = useSelector((state) => state.movie?.movies);
-    const [history, setHistory] = useState(JSON.parse(sessionStorage.getItem(process.env.REACT_APP_SESSION_KEY)) || { history: [] });
+    const history = JSON.parse(sessionStorage.getItem(process.env.REACT_APP_SESSION_KEY)) || { history: [] };
     useEffect(() => {
         sessionStorage.setItem(process.env.REACT_APP_SESSION_KEY, JSON.stringify(history));
     }, [history]);

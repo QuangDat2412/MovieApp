@@ -1,12 +1,9 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { useState } from 'react';
 import Home from './pages/Home';
-import Type from './pages/Type';
-import Year from './pages/Year';
-import Genre from './pages/Genre';
-import Detail from './pages/Detail';
-import Country from './pages/Country';
+import Filter from './pages/Filter';
 import Search from './pages/Search';
+import Detail from './pages/Detail';
 import Watch from './pages/Watch';
 import Personal from './pages/Personal';
 import TopBar from './components/TopBar';
@@ -43,16 +40,16 @@ const App = () => {
                         <Personal />
                     </Route>
                     <Route path="/type/:slug">
-                        <Type setOpenModal={setOpenModal} />
+                        <Filter setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/year/:slug">
-                        <Year setOpenModal={setOpenModal} />
+                        <Filter setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/country/:slug">
-                        <Country setOpenModal={setOpenModal} />
+                        <Filter setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/genre/:slug">
-                        <Genre setOpenModal={setOpenModal} />
+                        <Filter setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/search/:slug">
                         <Search />

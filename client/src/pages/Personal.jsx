@@ -145,6 +145,21 @@ const Setting = (props) => {
                         </div>
                     </div>
                     <div className="account">
+                        <p>Ảnh Đại Diện</p>
+                        <div>
+                            <span></span>
+                            <span
+                                className="btn"
+                                onClick={() => {
+                                    setOptions('img');
+                                    openModal();
+                                }}
+                            >
+                                Sửa đổi
+                            </span>
+                        </div>
+                    </div>
+                    <div className="account">
                         <p>Mật khẩu</p>
                         <div>
                             <span className="password">●●●●●●●●●●●●●</span>
@@ -333,7 +348,7 @@ const Modal = (props) => {
                 </div>
                 <PaperContent>
                     <div className="title">
-                        <p>Đăng ký</p>
+                        <p>Sửa Đổi Thông Tin</p>
                     </div>
                     <Form>
                         {!(status === '') && <span>{status}</span>}
@@ -344,7 +359,12 @@ const Modal = (props) => {
                         )}
                         {props.options === 'phone' && (
                             <>
-                                <Input name="phone" label="Tên tài khoản" type="number" onChange={handleChange} />
+                                <Input name="phone" label="Số Điện Thoại" type="number" onChange={handleChange} />
+                            </>
+                        )}
+                        {props.options === 'img' && (
+                            <>
+                                <Input name="img" label="Ảnh đại diện" type="text" onChange={handleChange} />
                             </>
                         )}
                         {props.options === 'password' && (

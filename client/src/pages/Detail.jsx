@@ -4,18 +4,15 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { getMovies } from '../redux/movieRedux/apiCalls';
-import { userRequest } from '../requestMethods';
-import { updateUserSuccess } from '../redux/authRedux/authRedux';
 import { useDispatch } from 'react-redux';
 import { convertSlug } from '../utils';
 import Button from '../components/Button';
 import ListMovie from '../components/ListMovie';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
-import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import AddVip from '../components/AddVip';
 const Detail = (props) => {
     const { setOpenModal } = props;
     const { slug } = useParams();
@@ -60,7 +57,7 @@ const Detail = (props) => {
                         </div>
                     </div>
                 </Banner>
-                <ContentInfo movie={movie} auth={auth} dispatch={dispatch} setOpenModal={setOpenModal} />
+                <ContentInfo movie={movie} auth={auth} setOpenModal={setOpenModal} />
             </InfoMovie>
             <TabWrapper>
                 <div>
@@ -110,7 +107,7 @@ const Detail = (props) => {
 };
 
 export const ContentInfo = (props) => {
-    const { movie, auth, episode, setOpenModal, dispatch } = props;
+    const { movie, episode, setOpenModal } = props;
     const [check, setCheck] = useState(true);
     const [checkLines, setCheckLines] = useState(0);
     useEffect(() => {
@@ -126,17 +123,6 @@ export const ContentInfo = (props) => {
             document.getElementById('descBox').classList.add('desc');
             setCheck(true);
         }
-    };
-    const handleAdd = async () => {
-        if (!auth?._id) {
-            setOpenModal(true);
-        }
-        const res = auth?._id && (await userRequest.put(`/users/add/${auth?._id}`, { favorites: movie?._id }));
-        auth?._id && dispatch(updateUserSuccess(res.data));
-    };
-    const handleRemove = async () => {
-        const res = await userRequest.put(`/users/remove/${auth?._id}`, { favorites: movie?._id });
-        dispatch(updateUserSuccess(res.data));
     };
 
     return (
@@ -214,15 +200,7 @@ export const ContentInfo = (props) => {
                             <PlayArrowIcon style={{ marginRight: '10px' }} /> Phát ngay
                         </Button>
                     </Link>
-                    {auth?.favorites.filter((m) => m._id === movie?._id)[0]?._id ? (
-                        <Button onClick={handleRemove}>
-                            <PlaylistAddCheckIcon style={{ marginRight: '10px' }} /> Huỷ lưu trữ
-                        </Button>
-                    ) : (
-                        <Button onClick={handleAdd}>
-                            <PlaylistAddIcon style={{ marginRight: '10px' }} /> Thêm vào lưu trữ
-                        </Button>
-                    )}
+                    <AddVip movie={movie} setOpenModal={setOpenModal} string={{ remove: 'Huỷ lưu trữ', add: 'Thêm vào lưu trữ' }} />
                 </Buttons>
             </div>
         </Content>

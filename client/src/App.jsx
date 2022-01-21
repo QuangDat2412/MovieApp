@@ -31,7 +31,7 @@ const App = () => {
                     {openMobileModal && <MobileModal setOpenMobileModal={setOpenMobileModal} setOpenModal={setOpenModal} />}
                     {openModal && <Modal setOpenModal={setOpenModal} />}
                     <Route exact path="/">
-                        <Home />
+                        <Home setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/detail/:slug">
                         <Detail openModal={openModal} setOpenModal={setOpenModal} />
@@ -43,16 +43,16 @@ const App = () => {
                         <Personal />
                     </Route>
                     <Route path="/type/:slug">
-                        <Type />
+                        <Type setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/year/:slug">
-                        <Year />
+                        <Year setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/country/:slug">
-                        <Country />
+                        <Country setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/genre/:slug">
-                        <Genre />
+                        <Genre setOpenModal={setOpenModal} />
                     </Route>
                     <Route path="/search/:slug">
                         <Search />

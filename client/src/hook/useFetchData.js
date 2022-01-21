@@ -5,8 +5,9 @@ const useFetchData = (URL = '', slug = '') => {
     const getMovies = async () => {
         try {
             const res = await publicRequest.get(URL + slug);
-            setListMovies(res.data[Object.keys(res.data)[0]]);
-            setKey(Object.keys(res.data)[0]);
+            const data = { ...res.data };
+            setListMovies(data[Object.keys(data)[0]]);
+            setKey(Object.keys(data)[0]);
         } catch (err) {
             console.log(err);
         }

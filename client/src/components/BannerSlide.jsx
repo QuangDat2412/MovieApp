@@ -7,6 +7,8 @@ import Slider from 'react-slick';
 import Button from './Button';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import { memo } from 'react';
+import { convertSlug } from '../utils';
+import AddVip from './AddVip';
 const BannerSlide = (props) => {
     const { movies } = props;
     let settings = {
@@ -15,7 +17,6 @@ const BannerSlide = (props) => {
         slidesToShow: 1,
         slidesToScroll: 1,
         autoplaySpeed: 5000,
-        autoplay: true,
     };
 
     return (
@@ -23,31 +24,50 @@ const BannerSlide = (props) => {
             {movies.map((movie, index) => {
                 return (
                     <Wrap key={index}>
-                        <Link to={'/detail/' + movie?.slug} title={movie?.title}>
-                            <div style={{ backgroundImage: `url(${movie?.imgBanner})` }}>
-                                <WrapContent className="container">
-                                    <div>
-                                        <h2 className="title">{movie?.title}</h2>
-                                        <p className="desc">{movie?.desc}</p>
-                                        <div className="boxBtn">
-                                            <Button>
-                                                <PlayArrowIcon />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <img src={movie?.imgTitle} alt="" className="w500" />
-                                    </div>
-                                </WrapContent>
+                        <div style={{ backgroundImage: `url(${movie?.imgBanner})` }}></div>
+                        <WrapContent className="container">
+                            <div>
+                                <h2 className="title">{movie?.title}</h2>
+                                <Type className="genre">
+                                    {movie?.genre.map((genre, index) => {
+                                        return (
+                                            <Link to={'/genre/' + convertSlug(genre)} key={index}>
+                                                {genre}
+                                            </Link>
+                                        );
+                                    })}
+                                </Type>
+                                <p className="desc">{movie?.desc}</p>
+                                <div className="boxBtn">
+                                    <Link to={'/detail/' + movie?.slug} title={movie?.title}>
+                                        <Button>
+                                            <PlayArrowIcon />
+                                        </Button>
+                                    </Link>
+                                    <AddVip movie={movie} setOpenModal={props.setOpenModal} />
+                                </div>
                             </div>
-                        </Link>
+                            <div>
+                                <img src={movie?.imgTitle} alt="" className="w500" />
+                            </div>
+                        </WrapContent>
                     </Wrap>
                 );
             })}
         </Carousel>
     );
 };
-
+const Type = styled.div`
+    margin-top: 1.5rem !important ;
+    & > a {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        font-weight: 600;
+        padding: 2px 6px;
+        margin-right: 10px;
+        font-size: 0.75rem;
+    }
+`;
 const Carousel = styled(Slider)`
     width: 100%;
     overflow: hidden;
@@ -63,18 +83,22 @@ const Carousel = styled(Slider)`
         }
         .title,
         .desc,
-        .boxBtn {
+        .boxBtn,
+        .genre {
             opacity: 1;
             transform: translateY(0);
         }
         .title {
             transition-delay: 0.3s, 0.3s;
         }
-        .desc {
+        .genre {
             transition-delay: 0.6s, 0.6s;
         }
+        .desc {
+            transition-delay: 1s, 1.5s;
+        }
         .boxBtn {
-            transition-delay: 0.8s, 0.8s;
+            transition-delay: 1.2s, 1.5s;
         }
     }
     & > button {
@@ -112,47 +136,43 @@ const Carousel = styled(Slider)`
 `;
 
 const Wrap = styled.div`
-    border-radius: 4px;
-    cursor: pointer;
     position: relative;
-    & > a {
-        border-radius: 4px;
-        cursor: pointer;
-        display: block;
+    & > div:nth-child(1) {
         position: relative;
-        & > div {
+        z-index: 1;
+        width: 100%;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        padding-top: 56.25%;
+        &:before,
+        &:after {
+            content: '';
+            position: absolute;
+            left: 0;
             width: 100%;
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            padding: 7rem 0;
-            &:before,
-            &:after {
-                content: '';
-                position: absolute;
-                left: 0;
-                width: 100%;
-            }
-            &:before {
-                top: 0;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-            &:after {
-                bottom: 0;
-                height: 6rem;
-                background-image: linear-gradient(to top, #111319, rgba(0, 0, 0, 0));
-            }
+        }
+        &:before {
+            top: 0;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        &:after {
+            bottom: 0;
+            height: 6rem;
+            background-image: linear-gradient(to top, #111319, rgba(0, 0, 0, 0));
         }
     }
 `;
 const WrapContent = styled.div`
     display: flex;
-    align-items: center;
     justify-content: flex-start;
-    position: relative;
     height: 100%;
+    width: 100%;
     padding: 0 4rem;
+    position: absolute;
+    top: 10rem;
+    z-index: 10;
     & > div:nth-child(2) {
         & img {
             width: 400px;
@@ -164,17 +184,17 @@ const WrapContent = styled.div`
         }
     }
     & > div:nth-child(1) {
-        width: 60%;
+        width: 70%;
         padding-right: 10px;
-        flex: 1;
+        margin-top: 4rem;
         & > h2,
         & > p {
-            font-size: 5rem;
-            font-weight: 700;
-            margin-top: 3rem;
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin: 1rem 0;
             box-sizing: border-box;
             opacity: 0;
-            transform: translateY(-100px);
+            transform: translateY(-70px);
             transition: transform 1.5s ease, opacity 1.5s ease;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -188,16 +208,21 @@ const WrapContent = styled.div`
             transform: translateY(-100px);
             transition: transform 1.5s ease, opacity 1.5s ease;
             opacity: 0;
-            & > button {
+            button {
                 border-radius: 50%;
-                display: flex;
+                display: inline-flex;
+                margin: 0 10px;
                 &:hover {
                     background: rgb(73, 210, 109);
                 }
                 & > svg {
                     font-size: 2rem;
+                    margin: 0 !important ;
                 }
                 background-color: var(--primary-color);
+            }
+            & > button:nth-child(2) {
+                background-color: #bbb3b3;
             }
         }
         & > p {

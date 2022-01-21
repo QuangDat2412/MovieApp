@@ -6,7 +6,8 @@ import { useSelector } from 'react-redux';
 import BannerSlide from '../components/BannerSlide';
 import ListMovie from '../components/ListMovie';
 
-const Home = () => {
+const Home = (props) => {
+    const { setOpenModal } = props;
     const { slug } = useParams();
     const dispatch = useDispatch();
     useEffect(() => {
@@ -19,7 +20,7 @@ const Home = () => {
     const phimLe = movies.filter((m) => !m.isSeries);
     return (
         <div>
-            <BannerSlide movies={movies1} />
+            <BannerSlide movies={movies1} setOpenModal={setOpenModal} />
             <div className="container">
                 <h2 style={{ marginBottom: '10px' }}> Đề Xuất </h2>
                 <ListMovie movies={movies1} />

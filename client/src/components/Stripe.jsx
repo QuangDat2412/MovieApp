@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { userRequest } from '../requestMethods';
 import { updateUser } from '../redux/authRedux/apiCalls';
 import { useDispatch } from 'react-redux';
@@ -39,4 +39,4 @@ const Stripe = (props) => {
         </StripeCheckout>
     );
 };
-export default Stripe;
+export default memo(Stripe);

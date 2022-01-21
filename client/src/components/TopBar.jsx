@@ -14,7 +14,7 @@ import FormatIndentIncreaseIcon from '@material-ui/icons/FormatIndentIncrease';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 
-export default function TopBar(props) {
+const TopBar = (props) => {
     const timeId = useRef();
     const movies = useSelector((state) => state.movie?.movies);
     const [history, setHistory] = useState(JSON.parse(sessionStorage.getItem(process.env.REACT_APP_SESSION_KEY)) || { history: [] });
@@ -345,7 +345,7 @@ export default function TopBar(props) {
             </NavBar>
         </>
     );
-}
+};
 const NavBar = styled.div`
     width: 100%;
     height: 60px;
@@ -736,3 +736,4 @@ const List = styled.div`
         border: 1px solid rgba(255, 255, 255, 0.25);
     }
 `;
+export default TopBar;

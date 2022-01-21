@@ -11,7 +11,7 @@ import Loader from '../components/Loader';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Stripe from '../components/Stripe';
-export default function Personal() {
+const Personal = () => {
     const auth = useSelector((state) => state.auth.currentUser);
     const { slug } = useParams();
     const movies = useSelector((state) => state.movie?.movies);
@@ -68,7 +68,7 @@ export default function Personal() {
             </Container>
         </>
     );
-}
+};
 
 const Setting = (props) => {
     const { auth, setOpenModal, setOptions } = props;
@@ -799,3 +799,5 @@ const Form = styled.form`
         margin: 30px 0;
     }
 `;
+
+export default Personal;

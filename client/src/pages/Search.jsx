@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useLocation } from 'react-router';
 
-export default function Search() {
+const Search = () => {
     const { slug } = useParams();
     const location = useLocation();
     const data = location.state?.data ? location.state?.data : [];
@@ -34,7 +34,7 @@ export default function Search() {
             </div>
         </Container>
     );
-}
+};
 const Container = styled.div`
     margin-top: 100px;
 `;
@@ -77,3 +77,4 @@ const ListEpisode = styled.div`
         }
     }
 `;
+export default Search;

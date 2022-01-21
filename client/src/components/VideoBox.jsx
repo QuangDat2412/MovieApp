@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { publicRequest, userRequest } from '../requestMethods';
@@ -23,7 +23,7 @@ const VideoBox = (props) => {
     const dispatch = useDispatch();
     const [start, setStart] = useState(false);
     const [ads, setAds] = useState(false);
-    const [p, setP] = useState('360p');
+    const [p, setP] = useState('720p');
     const [play, setPlay] = useState(false);
     const [mute, setMute] = useState(false);
     const [left, setLeft] = useState(0);
@@ -710,4 +710,4 @@ const RightControl = styled.div`
         }
     }
 `;
-export default VideoBox;
+export default memo(VideoBox);

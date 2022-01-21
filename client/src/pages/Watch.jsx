@@ -9,7 +9,7 @@ import ListMovie from '../components/ListMovie';
 import { ContentInfo } from './Detail';
 import { getMovies } from '../redux/movieRedux/apiCalls';
 
-export default function Watch(props) {
+const Watch = (props) => {
     const dispatch = useDispatch();
     let { slug } = useParams();
     useEffect(() => {
@@ -67,7 +67,7 @@ export default function Watch(props) {
             </Container>
         </>
     );
-}
+};
 
 const EpisodeRight = (props) => {
     const { movie, movies, episodes, episode } = props;
@@ -461,3 +461,4 @@ const EpisodeBox = styled.div`
         }
     }
 `;
+export default Watch;

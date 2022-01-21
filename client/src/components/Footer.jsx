@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { memo } from 'react';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import YouTubeIcon from '@material-ui/icons/YouTube';
-export default function Footer(props) {
+const Footer = (props) => {
     return (
         <>
             <Container>
@@ -48,7 +49,7 @@ export default function Footer(props) {
             </Container>
         </>
     );
-}
+};
 
 const Container = styled.div`
     width: 100%;
@@ -94,3 +95,4 @@ const Container = styled.div`
         }
     }
 `;
+export default memo(Footer);

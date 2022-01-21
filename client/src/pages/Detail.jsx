@@ -16,7 +16,7 @@ import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-export default function Detail(props) {
+const Detail = (props) => {
     const { setOpenModal } = props;
     const { slug } = useParams();
     useEffect(() => {
@@ -107,7 +107,7 @@ export default function Detail(props) {
             </TabWrapper>
         </>
     );
-}
+};
 
 export const ContentInfo = (props) => {
     const { movie, auth, episode, setOpenModal, dispatch } = props;
@@ -514,3 +514,4 @@ const ListEpisode = styled.div`
         }
     }
 `;
+export default Detail;

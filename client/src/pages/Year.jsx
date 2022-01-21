@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import useFetchData from '../hook/useFetchData';
 import { useEffect } from 'react';
-export default function Year() {
+const Year = () => {
     const { slug } = useParams();
 
     useEffect(() => {
@@ -33,7 +33,7 @@ export default function Year() {
             </div>
         </div>
     );
-}
+};
 const ListEpisode = styled.div`
     display: flex;
     flex-wrap: wrap;
@@ -73,3 +73,4 @@ const ListEpisode = styled.div`
         }
     }
 `;
+export default Year;

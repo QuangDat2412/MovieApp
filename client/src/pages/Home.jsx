@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import BannerSlide from '../components/BannerSlide';
 import ListMovie from '../components/ListMovie';
 
-export default function Home() {
+const Home = () => {
     const { slug } = useParams();
     const dispatch = useDispatch();
     useEffect(() => {
@@ -34,7 +34,8 @@ export default function Home() {
             </div>
         </div>
     );
-}
+};
+export default Home;
 
 // export default function Home() {
 //     const [file, setFile] = useState(null);

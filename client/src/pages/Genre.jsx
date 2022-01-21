@@ -5,7 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import useFetchData from '../hook/useFetchData';
 
-export default function Genre() {
+const Genre = () => {
     const { slug } = useParams();
 
     useEffect(() => {
@@ -34,7 +34,7 @@ export default function Genre() {
             </div>
         </div>
     );
-}
+};
 const ListEpisode = styled.div`
     display: flex;
     flex-wrap: wrap;
@@ -74,3 +74,4 @@ const ListEpisode = styled.div`
         }
     }
 `;
+export default Genre;
